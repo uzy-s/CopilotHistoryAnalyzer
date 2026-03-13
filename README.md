@@ -22,5 +22,5 @@ This is a simple Streamlit web application to analyze your GitHub Copilot chat h
     ```
 
 3.  **Usage**:
-    - Upload your `chatTemplate.json` file (usually found in your project workspace or VS Code logs).
+    - Upload your `chatTemplate.json` file (can be obtained through the "Chat: Export" command on VSCode for GitHub Copilot).
     - Optionally, enter the full path to your local Git repository to see commit statistics overlay.
