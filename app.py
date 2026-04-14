@@ -1,3 +1,11 @@
+"""Streamlit entrypoint for the Copilot History Analyzer app.
+
+This module wires together:
+1. Sidebar configuration and filters.
+2. Data loading/parsing orchestration.
+3. Delegation to tab renderer functions.
+"""
+
 import os
 
 import pandas as pd
@@ -27,6 +35,19 @@ st.title("Copilot History Analyzer")
 
 
 def build_chat_session_sidebar(df_chat_all: pd.DataFrame) -> str | None:
+    """Render chat session selection controls.
+
+    Args:
+        df_chat_all: Full chat dataframe containing at least file_name,
+            suspected_user, and timestamp columns.
+
+    Returns:
+        The selected session file name, or None if no sessions are available.
+
+    Notes:
+        Display labels include session start time and inferred user for context,
+        but the returned value is the raw file name used for filtering.
+    """
     st.sidebar.divider()
     st.sidebar.subheader("Chat History View")
 
@@ -51,6 +72,14 @@ def build_chat_session_sidebar(df_chat_all: pd.DataFrame) -> str | None:
 
 
 def build_analysis_filters_sidebar(df_chat_all: pd.DataFrame) -> pd.DataFrame:
+    """Render analysis filters and return filtered chat rows.
+
+    Args:
+        df_chat_all: Full chat dataframe containing session-level rows.
+
+    Returns:
+        A subset of df_chat_all restricted to sessions selected in the sidebar.
+    """
     st.sidebar.divider()
     st.sidebar.subheader("Analysis Filters")
 
@@ -67,6 +96,15 @@ def build_analysis_filters_sidebar(df_chat_all: pd.DataFrame) -> pd.DataFrame:
 
 
 def load_git_data(repo_path: str) -> pd.DataFrame:
+    """Load git history for a repository path.
+
+    Args:
+        repo_path: User-provided path to a local git repository root.
+
+    Returns:
+        A timestamp-sorted dataframe of commits when the path is valid,
+        otherwise an empty dataframe.
+    """
     if repo_path and os.path.isdir(repo_path):
         df_git = parse_git_history(repo_path)
         if not df_git.empty:
@@ -75,6 +113,14 @@ def load_git_data(repo_path: str) -> pd.DataFrame:
 
 
 def main() -> None:
+    """Run the Streamlit app lifecycle.
+
+    This function coordinates:
+    1. Sidebar inputs.
+    2. Data loading/parsing.
+    3. Session filtering.
+    4. Tab rendering delegation.
+    """
     st.sidebar.header("Configuration")
 
     available_phases = discover_available_phases(DATA_DIR)
@@ -94,6 +140,7 @@ def main() -> None:
         help="Path to the root of your local git repository to correlate chat with commits.",
     )
 
+    # Merge uploaded files with discovered phase files into a single parse list.
     files_to_parse = list(uploaded_files) if uploaded_files else []
     files_to_parse.extend(gather_phase_files(selected_phases, DATA_DIR))
 
@@ -111,6 +158,7 @@ def main() -> None:
     df_chat_analysis = build_analysis_filters_sidebar(df_chat_all)
     df_git = load_git_data(repo_path)
 
+    # Each tab delegates rendering to a focused function in views.tabs.
     tab1, tab2, tab3, tab4, tab5 = st.tabs(
         ["Chat History", "Statistics", "Development Timeline", "Comparative Analysis", "Prompt Analysis"]
     )

@@ -1,3 +1,10 @@
+"""Streamlit tab rendering layer.
+
+Each function in this module receives prepared dataframes and renders one tab.
+Keeping rendering isolated from parsing/analytics logic makes the UI code easier
+to maintain and test.
+"""
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -17,6 +24,15 @@ from services.analytics import (
 
 
 def render_chat_history_tab(df_chat_all: pd.DataFrame, selected_chat_file: str | None) -> None:
+    """Render the Chat History tab.
+
+    Args:
+        df_chat_all: Full chat dataframe across all loaded sessions.
+        selected_chat_file: Session file name selected in the sidebar.
+
+    Returns:
+        None. Renders Streamlit UI elements directly.
+    """
     st.subheader("Recreated Chat Session")
 
     if selected_chat_file:
@@ -47,6 +63,15 @@ def render_chat_history_tab(df_chat_all: pd.DataFrame, selected_chat_file: str |
 
 
 def render_statistics_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) -> None:
+    """Render the Statistics tab.
+
+    Args:
+        df_chat_analysis: Session-filtered chat dataframe for analysis.
+        df_git: Optional git commit dataframe for human contribution overlays.
+
+    Returns:
+        None. Renders Streamlit UI elements directly.
+    """
     st.subheader("Statistics: Who Created Content?")
 
     if df_chat_analysis.empty:
@@ -204,6 +229,15 @@ def render_statistics_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) 
 
 
 def render_timeline_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) -> None:
+    """Render the Development Timeline tab.
+
+    Args:
+        df_chat_analysis: Session-filtered chat dataframe for analysis.
+        df_git: Optional git commit dataframe.
+
+    Returns:
+        None. Renders Streamlit UI elements directly.
+    """
     st.subheader("Development History Timeline")
 
     timeline_data = []
@@ -269,6 +303,14 @@ def render_timeline_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) ->
 
 
 def render_comparative_tab(df_chat_analysis: pd.DataFrame) -> None:
+    """Render the Comparative Analysis tab.
+
+    Args:
+        df_chat_analysis: Session-filtered chat dataframe including phase labels.
+
+    Returns:
+        None. Renders Streamlit UI elements directly.
+    """
     st.subheader("Comparative Analysis")
 
     prompt_df = analyze_prompt_style(df_chat_analysis)
@@ -358,6 +400,7 @@ def render_comparative_tab(df_chat_analysis: pd.DataFrame) -> None:
     st.dataframe(summary_df, width="stretch", hide_index=True)
     st.divider()
 
+    # Convert boolean descriptor flags into comparable percentage rates by phase.
     descriptor_rows = [
         {"Metric": "Inquisitive", phase_a: safe_rate(df_phase_a, "Is Inquisitive"), phase_b: safe_rate(df_phase_b, "Is Inquisitive")},
         {"Metric": "Polite", phase_a: safe_rate(df_phase_a, "Is Polite"), phase_b: safe_rate(df_phase_b, "Is Polite")},
@@ -459,6 +502,14 @@ def render_comparative_tab(df_chat_analysis: pd.DataFrame) -> None:
 
 
 def render_prompt_analysis_tab(df_chat_analysis: pd.DataFrame) -> None:
+    """Render the Prompt Analysis tab.
+
+    Args:
+        df_chat_analysis: Session-filtered chat dataframe for style analysis.
+
+    Returns:
+        None. Renders Streamlit UI elements directly.
+    """
     st.subheader("Prompt Analysis & Styling")
     st.write("This tab takes in all the extracted user prompts and categorizes them based on their tone, length, and style descriptors.")
 

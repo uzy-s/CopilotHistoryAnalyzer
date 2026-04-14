@@ -1,3 +1,9 @@
+"""Data loading and normalization utilities for chat and git sources.
+
+The helpers in this module keep parsing behavior deterministic and defensive
+against malformed or partial JSON records.
+"""
+
 import json
 import os
 import re
@@ -13,12 +19,29 @@ DATA_DIR = "data"
 
 
 def discover_available_phases(data_dir: str = DATA_DIR) -> list[str]:
+    """Discover phase directories under the data root.
+
+    Args:
+        data_dir: Root directory containing phase folders.
+
+    Returns:
+        List of first-level folder names inside data_dir.
+    """
     if not os.path.exists(data_dir):
         return []
     return [d for d in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, d))]
 
 
 def gather_phase_files(selected_phases: Iterable[str], data_dir: str = DATA_DIR) -> list[str]:
+    """Collect JSON files for selected phases.
+
+    Args:
+        selected_phases: Iterable of phase folder names to scan.
+        data_dir: Root data directory that contains phase folders.
+
+    Returns:
+        Flat list of absolute/relative file paths to JSON files.
+    """
     files_to_parse: list[str] = []
 
     for selected_phase in selected_phases:
@@ -35,6 +58,14 @@ def gather_phase_files(selected_phases: Iterable[str], data_dir: str = DATA_DIR)
 
 
 def _infer_phase_name(source_path: str) -> str:
+    """Infer phase label from source path.
+
+    Args:
+        source_path: Path for an uploaded file or local file.
+
+    Returns:
+        Inferred phase name when path contains data/<phase>/..., else "Uploaded".
+    """
     if not source_path or not isinstance(source_path, str):
         return "Uploaded"
 
@@ -49,6 +80,14 @@ def _infer_phase_name(source_path: str) -> str:
 
 
 def _extract_suspected_user_from_requests(requests: list[dict]) -> str:
+    """Infer username from request variable path metadata.
+
+    Args:
+        requests: Raw request records from exported chat JSON.
+
+    Returns:
+        Inferred username from path patterns, or "Unknown User" when unresolved.
+    """
     suspected_user = "Unknown User"
 
     for req in requests:
@@ -85,6 +124,14 @@ def _extract_suspected_user_from_requests(requests: list[dict]) -> str:
 
 
 def _extract_referenced_files(req: dict) -> list[str]:
+    """Extract basename-only file references from one request.
+
+    Args:
+        req: Single request dictionary.
+
+    Returns:
+        List of referenced file base names found in variable metadata.
+    """
     referenced_files: list[str] = []
 
     variable_data = req.get("variableData", {})
@@ -116,6 +163,14 @@ def _extract_referenced_files(req: dict) -> list[str]:
 
 
 def _extract_code_metadata(assistant_msg: str) -> tuple[int, list[str]]:
+    """Extract code-line count and code fence languages.
+
+    Args:
+        assistant_msg: Raw assistant response text.
+
+    Returns:
+        Tuple of (code_line_count, language_list).
+    """
     code_lines = 0
     languages: list[str] = []
 
@@ -140,10 +195,23 @@ def _extract_code_metadata(assistant_msg: str) -> tuple[int, list[str]]:
 
 @st.cache_data
 def parse_chat_data(files: list) -> pd.DataFrame:
+    """Parse uploaded or on-disk chat JSON files into a normalized dataframe.
+
+    Args:
+        files: Mixed list of file paths and Streamlit UploadedFile objects.
+
+    Returns:
+        Normalized dataframe where each row is one request/response pair.
+
+    Notes:
+        Output rows include model, token usage, timing, language, and editor
+        event metadata. Invalid files are reported and skipped.
+    """
     all_requests = []
 
     for uploaded_file in files:
         try:
+            # Support both local file paths and Streamlit UploadedFile objects.
             if isinstance(uploaded_file, str):
                 with open(uploaded_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
@@ -185,6 +253,7 @@ def parse_chat_data(files: list) -> pd.DataFrame:
                 model_name = "Unknown"
                 metrics = {}
 
+                # Concatenate all assistant content, skipping explicit thinking blocks.
                 for part in response_parts:
                     if not isinstance(part, dict):
                         continue
@@ -244,6 +313,7 @@ def parse_chat_data(files: list) -> pd.DataFrame:
                 )
 
         except Exception as e:
+            # Parsing should continue even if one file fails.
             file_ref = uploaded_file if isinstance(uploaded_file, str) else uploaded_file.name
             st.error(f"Error parsing {file_ref}: {e}")
 
@@ -251,6 +321,15 @@ def parse_chat_data(files: list) -> pd.DataFrame:
 
 
 def parse_git_history(path: str) -> pd.DataFrame:
+    """Read git commit history for correlation views.
+
+    Args:
+        path: Path to the repository root.
+
+    Returns:
+        Dataframe of commit metadata (timestamp, author, message, and stats).
+        Returns an empty dataframe when parsing fails.
+    """
     commits_data = []
     try:
         repo = Repo(path)

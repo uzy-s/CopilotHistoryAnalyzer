@@ -1,3 +1,5 @@
+"""Authentication helpers for Streamlit password gate."""
+
 import hmac
 import os
 
@@ -5,6 +7,17 @@ import streamlit as st
 
 
 def require_password() -> None:
+    """Enforce password authentication before rendering the app.
+
+    Password lookup priority:
+    1. Streamlit secrets key APP_PASSWORD.
+    2. Environment variable APP_PASSWORD.
+
+    Behavior:
+    - If password config is missing, shows an error and stops execution.
+    - If session is not authenticated, renders a password prompt and stops.
+    - If already authenticated in session state, returns immediately.
+    """
     expected_password = None
     try:
         expected_password = st.secrets.get("APP_PASSWORD")
@@ -19,6 +32,10 @@ def require_password() -> None:
         st.stop()
 
     def on_password_submit() -> None:
+        """Validate entered password and clear plaintext input state.
+
+        Uses constant-time comparison to reduce timing leak risk.
+        """
         entered_password = st.session_state.get("app_password_input", "")
         st.session_state["password_ok"] = hmac.compare_digest(entered_password, expected_password)
         st.session_state["app_password_input"] = ""
