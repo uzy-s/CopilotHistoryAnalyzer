@@ -35,9 +35,11 @@ def render_chat_history_tab(df_chat_all: pd.DataFrame, selected_chat_file: str |
     """
     st.subheader("Recreated Chat Session")
 
+    # This tab is driven by a single selected session file.
     if selected_chat_file:
         df_chat_view = df_chat_all[df_chat_all["file_name"] == selected_chat_file]
 
+        # Show high-level context for the active transcript.
         user_info = df_chat_view["suspected_user"].iloc[0] if not df_chat_view.empty else "Unknown"
         st.caption(f"Viewing Session: **{selected_chat_file}** | User: **{user_info}**")
 
@@ -46,11 +48,13 @@ def render_chat_history_tab(df_chat_all: pd.DataFrame, selected_chat_file: str |
 
         with st.container(height=600):
             for _, row in df_chat_view.iterrows():
+                # Render the original user prompt.
                 with st.chat_message("user"):
                     st.markdown(f"**{row['suspected_user']}**")
                     st.write(row["user_text"])
                     st.caption(f"{row['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
 
+                # Render the assistant response with compact metadata header.
                 assistant_header = f"{row['model']} | Code Lines: {row['code_lines_suggested']}"
                 with st.chat_message("assistant"):
                     st.markdown(f"**{assistant_header}**")
@@ -84,6 +88,7 @@ def render_statistics_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) 
     success_rate = ((total_code - flagged_reverts) / total_code) * 100 if total_code > 0 else 100
 
     with col1:
+        # AI-side contribution and quality metrics.
         st.write("### AI Contribution & Quality")
         total_code_lines = df_chat_analysis["code_lines_suggested"].sum()
         total_tokens = df_chat_analysis["completion_tokens"].sum()
@@ -95,11 +100,13 @@ def render_statistics_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) 
         c2.metric("Flagged Reverts", flagged_reverts, help="Number of responses followed immediately by a correction request.")
 
         if "model" in df_chat_analysis.columns:
+            # Model usage share across selected sessions.
             model_counts = df_chat_analysis["model"].value_counts()
             fig_model = px.pie(model_counts, values=model_counts.values, names=model_counts.index, title="AI Models Used")
             st.plotly_chart(fig_model)
 
     with col2:
+        # Git-side metrics are optional and only available with a valid repo path.
         if not df_git.empty:
             st.write("### Git Human Contribution")
             total_insertions = df_git["insertions"].sum()
@@ -112,6 +119,7 @@ def render_statistics_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) 
             st.plotly_chart(fig_author)
 
             st.write("### Volume Comparison")
+            # This is a volume comparison only; it does not imply code authorship.
             fig_comp = go.Figure(
                 data=[
                     go.Bar(name="AI Suggested Lines", x=["Code Volume"], y=[total_code_lines]),
@@ -131,9 +139,11 @@ def render_statistics_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) 
     with col3:
         st.write("### Response Latency by Model")
         if "latency_ms" in df_chat_analysis.columns:
+            # Remove zero/failed latency events for cleaner distributions.
             df_latency = df_chat_analysis[df_chat_analysis["latency_ms"] > 0].copy()
             if not df_latency.empty:
                 try:
+                    # Convert ms to seconds for easier reading.
                     df_latency["latency_s"] = df_latency["latency_ms"] / 1000.0
                     df_latency["ttft_s"] = df_latency["ttft_ms"] / 1000.0
 
@@ -147,6 +157,7 @@ def render_statistics_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) 
                     )
                     st.plotly_chart(fig_latency, width="stretch")
 
+                    # TTFT is shown separately to highlight model thinking delay.
                     df_ttft = df_latency[df_latency["ttft_s"] > 0]
                     if not df_ttft.empty:
                         fig_ttft = px.box(
@@ -164,6 +175,7 @@ def render_statistics_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) 
     with col4:
         st.write("### Languages & Context")
 
+        # Flatten language lists from all responses into one frequency table.
         all_langs = []
         for langs in df_chat_analysis["languages"]:
             if isinstance(langs, list):
@@ -177,6 +189,7 @@ def render_statistics_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) 
         else:
             st.info("No code blocks detected.")
 
+        # Flatten file references to find most-used context files.
         all_files = []
         for files in df_chat_analysis.get("referenced_files", []):
             if isinstance(files, list):
@@ -197,6 +210,7 @@ def render_statistics_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) 
     col5, col6 = st.columns(2)
 
     with col5:
+        # Event counters from editor-side metadata attached to chat requests.
         total_checkpoints = df_chat_analysis.get("checkpoints_restored", pd.Series([0] * len(df_chat_analysis))).sum()
         editor_edits = df_chat_analysis.get("edited_file_events", pd.Series([0] * len(df_chat_analysis))).sum()
 
@@ -208,6 +222,7 @@ def render_statistics_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) 
         st.metric("File Edit Events", editor_edits, help="Total number of file edit events triggered by the AI agent.")
 
     with col6:
+        # Plot only rows that actually contain event activity.
         if total_checkpoints > 0 or editor_edits > 0:
             df_events = df_chat_analysis[
                 (df_chat_analysis["checkpoints_restored"] > 0) | (df_chat_analysis["edited_file_events"] > 0)
@@ -240,8 +255,10 @@ def render_timeline_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) ->
     """
     st.subheader("Development History Timeline")
 
+    # Build one normalized event table so both sources can share charts.
     timeline_data = []
 
+    # Chat events contribute one interaction row each.
     for _, row in df_chat_analysis.iterrows():
         timeline_data.append(
             {
@@ -254,6 +271,7 @@ def render_timeline_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) ->
             }
         )
 
+    # Git events are appended into the same timeline schema.
     if not df_git.empty:
         for _, row in df_git.iterrows():
             timeline_data.append(
@@ -272,6 +290,7 @@ def render_timeline_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) ->
     if df_timeline.empty:
         return
 
+    # Scatter timeline shows event type and relative code volume at each timestamp.
     fig_timeline = px.scatter(
         df_timeline,
         x="timestamp",
@@ -285,6 +304,7 @@ def render_timeline_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) ->
     st.plotly_chart(fig_timeline, width="stretch")
 
     st.write("### Code Velocity (AI Suggestions vs User Commits)")
+    # Velocity line chart is useful for seeing burst periods over time.
     fig_velocity = px.line(
         df_timeline.sort_values("timestamp"),
         x="timestamp",
@@ -295,6 +315,7 @@ def render_timeline_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) ->
     st.plotly_chart(fig_velocity, width="stretch")
 
     st.write("### Daily Activity Volume")
+    # Aggregate by day/type for a compact daily intensity view.
     df_timeline["date"] = df_timeline["timestamp"].dt.date
     daily_counts = df_timeline.groupby(["date", "type"]).size().reset_index(name="count")
 
@@ -313,6 +334,7 @@ def render_comparative_tab(df_chat_analysis: pd.DataFrame) -> None:
     """
     st.subheader("Comparative Analysis")
 
+    # Prompt-level features power most cross-phase comparisons.
     prompt_df = analyze_prompt_style(df_chat_analysis)
     if prompt_df.empty:
         st.warning("No prompts available for phase comparison in current filters.")
@@ -334,6 +356,7 @@ def render_comparative_tab(df_chat_analysis: pd.DataFrame) -> None:
         st.info("Choose two different phases to compare.")
         return
 
+    # Split both chat-level and prompt-level views by selected phases.
     df_phase_chat_a = df_chat_analysis[df_chat_analysis["phase"] == phase_a].copy()
     df_phase_chat_b = df_chat_analysis[df_chat_analysis["phase"] == phase_b].copy()
     df_phase_a = prompt_df[prompt_df["Phase"] == phase_a].copy()
@@ -352,6 +375,7 @@ def render_comparative_tab(df_chat_analysis: pd.DataFrame) -> None:
     top_share_a, top_model_a = top_model_share_percent(df_phase_chat_a)
     top_share_b, top_model_b = top_model_share_percent(df_phase_chat_b)
 
+    # Top-line normalized KPIs for quick phase comparison.
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Prompts (Comparison)", f"{prompts_b}", f"{prompts_b - prompts_a}", help=f"Baseline {phase_a}: {prompts_a}")
     c2.metric(
@@ -419,6 +443,7 @@ def render_comparative_tab(df_chat_analysis: pd.DataFrame) -> None:
     )
     st.plotly_chart(fig_descriptor_rates, width="stretch")
 
+    # Model mix is normalized by phase to avoid sample-size bias.
     model_dist = pd.concat([df_phase_chat_a.assign(PhaseLabel=phase_a), df_phase_chat_b.assign(PhaseLabel=phase_b)])
     model_share = model_dist.groupby(["PhaseLabel", "model"]).size().reset_index(name="count")
     model_share["share_pct"] = model_share.groupby("PhaseLabel")["count"].transform(lambda x: x / x.sum() * 100.0)
@@ -434,6 +459,7 @@ def render_comparative_tab(df_chat_analysis: pd.DataFrame) -> None:
 
     col_dist_1, col_dist_2 = st.columns(2)
     with col_dist_1:
+        # Distribution chart helps detect spread, not just average shifts.
         df_complexity_compare = pd.concat([df_phase_a.assign(PhaseLabel=phase_a), df_phase_b.assign(PhaseLabel=phase_b)])
         fig_complexity = px.box(
             df_complexity_compare,
@@ -445,6 +471,7 @@ def render_comparative_tab(df_chat_analysis: pd.DataFrame) -> None:
         st.plotly_chart(fig_complexity, width="stretch")
 
     with col_dist_2:
+        # Prompt length mix is normalized to percentages per phase.
         df_len_bucket = pd.concat([df_phase_a.assign(PhaseLabel=phase_a), df_phase_b.assign(PhaseLabel=phase_b)])
         length_counts = df_len_bucket.groupby(["PhaseLabel", "Prompt Length Bucket"]).size().reset_index(name="count")
         length_counts["share_pct"] = length_counts.groupby("PhaseLabel")["count"].transform(lambda x: x / x.sum() * 100.0)
@@ -460,6 +487,7 @@ def render_comparative_tab(df_chat_analysis: pd.DataFrame) -> None:
         st.plotly_chart(fig_length, width="stretch")
 
     st.write("### Daily Interaction Comparison")
+        # Daily shares are aligned to relative day numbers for phase-over-phase pacing.
     daily_a = df_phase_chat_a.copy()
     daily_b = df_phase_chat_b.copy()
     daily_a["date"] = daily_a["timestamp"].dt.date
@@ -494,6 +522,7 @@ def render_comparative_tab(df_chat_analysis: pd.DataFrame) -> None:
         st.info("Not enough data to build a daily interaction comparison.")
 
     st.write("### Prompts Driving Troubleshooting Delta")
+    # Show recent troubleshooting prompts from both phases for qualitative review.
     focus_cols = ["Phase", "Session", "User", "Timestamp", "Word Count", "Complexity Score", "Prompt"]
     focus_df = pd.concat([df_phase_a[df_phase_a["Is Troubleshooting"]].head(10), df_phase_b[df_phase_b["Is Troubleshooting"]].head(10)])[focus_cols].sort_values(
         "Timestamp", ascending=False
@@ -522,6 +551,7 @@ def render_prompt_analysis_tab(df_chat_analysis: pd.DataFrame) -> None:
         st.info("No text prompts found in the selected sessions.")
         return
 
+    # Top-level prompt dataset stats.
     p_col1, p_col2, p_col3 = st.columns(3)
     p_col1.metric("Total Prompts Analyzed", len(prompt_df))
     p_col2.metric("Average Word Count", f"{prompt_df['Word Count'].mean():.1f}")
@@ -530,6 +560,7 @@ def render_prompt_analysis_tab(df_chat_analysis: pd.DataFrame) -> None:
     st.divider()
 
     st.write("### Prompt Repository")
+    # Wide table view for row-level inspection and sorting/filtering in UI.
     st.dataframe(
         prompt_df,
         width="stretch",
@@ -543,6 +574,7 @@ def render_prompt_analysis_tab(df_chat_analysis: pd.DataFrame) -> None:
     st.divider()
     st.write("### Tone & Style Breakdown")
 
+    # Flatten descriptor strings into a frequency distribution.
     all_desc = []
     for desc in prompt_df["Style Descriptors"]:
         if desc:
