@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Copilot History Analyzer | Developer Guide</title>
+    <meta
+      name="description"
+      content="Developer Guide and API documentation for Copilot History Analyzer."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script defer src="api-reference-data.js"></script>
+    <script defer src="script.js"></script>
+  </head>
+  <body>
+    <div class="page-bg" aria-hidden="true"></div>
+
+    <header class="hero" id="top">
+      <p class="eyebrow">Developer Guide + API Docs</p>
+      <h1>Copilot History Analyzer</h1>
+      <p class="subtitle">
+        Everything a future capstone team needs to run, understand, and extend this project.
+      </p>
+      <div class="hero-actions">
+        <a href="#quickstart" class="btn btn-primary">Quick Start</a>
+        <a href="#api" class="btn btn-ghost">API Reference</a>
+      </div>
+    </header>
+
+    <main class="layout">
+      <nav class="side-nav" aria-label="Section navigation">
+        <a href="#overview">Overview</a>
+        <a href="#quickstart">Quick Start</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#data-contract">Data Contract</a>
+        <a href="#dev-workflow">Dev Workflow</a>
+        <a href="#api">API Reference</a>
+        <a href="#qa">QA Checklist</a>
+        <a href="#limits">Limits</a>
+      </nav>
+
+      <section class="content">
+        <article class="card" id="overview">
+          <h2>Project Overview</h2>
+          <p>
+            This Streamlit app analyzes GitHub Copilot chat export JSON files, recreates chat sessions,
+            and compares AI activity with optional local Git commit history.
+          </p>
+          <ul>
+            <li>Reconstructs transcript-style chat sessions.</li>
+            <li>Calculates token, latency, and prompt-style metrics.</li>
+            <li>Builds timeline and phase-to-phase comparisons.</li>
+            <li>Supports optional Git correlation for human contribution context.</li>
+          </ul>
+        </article>
+
+        <article class="card" id="quickstart">
+          <h2>Quick Start</h2>
+          <div class="code-block">
+            <button class="copy-btn" data-copy="#quickstart-code">Copy</button>
+            <pre id="quickstart-code"><code>python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+$env:APP_PASSWORD = "your-password"
+streamlit run app.py</code></pre>
+          </div>
+          <p class="small-note">
+            Alternative auth config: use <code>.streamlit/secrets.toml</code> with
+            <code>APP_PASSWORD = "your-password"</code>.
+          </p>
+          <p class="small-note">
+            To load JSON-driven API docs in browser reliably, serve this folder:
+            <code>python -m http.server 8080</code> and open
+            <code>http://localhost:8080</code>.
+          </p>
+        </article>
+
+        <article class="card" id="architecture">
+          <h2>Architecture</h2>
+          <div class="mermaid">
+flowchart TD
+    A[User Opens Streamlit App] --> B[Password Gate]
+    B --> C[Sidebar Configuration]
+    C --> D[Collect Files: Upload + data/&lt;phase&gt; scan]
+    D --> E[parse_chat_data]
+    C --> F[Optional Repo Path]
+    F --> G[parse_git_history]
+    E --> H[Normalized Chat DataFrame]
+    G --> I[Git DataFrame]
+    H --> J[Tab Renderers]
+    I --> J
+    J --> K[Chat History]
+    J --> L[Statistics]
+    J --> M[Development Timeline]
+    J --> N[Comparative Analysis]
+    J --> O[Prompt Analysis]
+          </div>
+
+          <h3>Applied Development Patterns</h3>
+          <div class="pattern-grid">
+            <div class="pattern-item">
+              <h4>Layered Architecture</h4>
+              <p>
+                UI orchestration lives in <code>app.py</code>, reusable business logic in
+                <code>services/</code>, and presentation rendering in <code>views/tabs.py</code>.
+              </p>
+            </div>
+            <div class="pattern-item">
+              <h4>Functional Core, UI Shell</h4>
+              <p>
+                Analytics helpers are mostly pure functions returning deterministic values,
+                while Streamlit-specific effects are contained in render/auth orchestration.
+              </p>
+            </div>
+            <div class="pattern-item">
+              <h4>Defensive Parsing Boundary</h4>
+              <p>
+                <code>parse_chat_data</code> and related helpers isolate malformed input handling,
+                enforce defaults, and keep downstream views stable.
+              </p>
+            </div>
+            <div class="pattern-item">
+              <h4>Progressive Enhancement</h4>
+              <p>
+                Optional git correlation augments metrics when available without blocking base
+                chat analysis workflows.
+              </p>
+            </div>
+          </div>
+
+          <h3>Runtime Pipeline</h3>
+          <ol>
+            <li>Authenticate early with <code>require_password()</code> (fail-fast gate).</li>
+            <li>Collect sources from phase discovery + file upload controls.</li>
+            <li>Normalize chat exports into request-level rows.</li>
+            <li>Optionally parse git history for correlation overlays.</li>
+            <li>Apply session filters and render per-tab analysis surfaces.</li>
+          </ol>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Module</th>
+                  <th>Role</th>
+                  <th>Pattern Focus</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>app.py</td><td>Entrypoint, sidebar config, tab wiring</td><td>Orchestration shell</td></tr>
+                <tr><td>services/auth.py</td><td>Password gate</td><td>Fail-fast access control</td></tr>
+                <tr><td>services/data_processing.py</td><td>File discovery, parsing, normalization, git history</td><td>Defensive parsing boundary</td></tr>
+                <tr><td>services/analytics.py</td><td>Reusable metrics and prompt analysis</td><td>Pure analytics core</td></tr>
+                <tr><td>views/tabs.py</td><td>UI rendering for each tab</td><td>Presentation isolation</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card" id="data-contract">
+          <h2>Data Contract</h2>
+          <p><strong>Input:</strong> chat JSON with top-level <code>requests</code> array.</p>
+          <div class="split-grid">
+            <div>
+              <h3>Key Parsed Request Fields</h3>
+              <ul>
+                <li><code>timestamp</code></li>
+                <li><code>message.text</code></li>
+                <li><code>response[]</code></li>
+                <li><code>result.details</code>, <code>result.usage.*</code>, <code>result.timings.*</code></li>
+                <li><code>variableData.variables[].value.path|fsPath</code></li>
+                <li><code>editedFileEvents</code></li>
+              </ul>
+            </div>
+            <div>
+              <h3>Primary Output DataFrames</h3>
+              <ul>
+                <li><code>df_chat</code>: timestamp, model, tokens, code lines, phase, context metadata</li>
+                <li><code>df_git</code>: timestamp, author, message, insertions, deletions, files</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" id="dev-workflow">
+          <h2>Developer Workflow</h2>
+          <ol>
+            <li>Keep parsing and business logic in <code>services/</code>.</li>
+            <li>Keep UI rendering in <code>views/tabs.py</code>.</li>
+            <li>When adding analytics, build pure functions first, then render outputs.</li>
+            <li>When adding tabs, create renderer + wire in <code>app.py</code>.</li>
+            <li>Preserve backward compatibility for chat schema changes.</li>
+          </ol>
+        </article>
+
+        <article class="card" id="api">
+          <div class="api-header">
+            <h2>API Reference (Internal Module API)</h2>
+            <label for="api-search">Search</label>
+            <input id="api-search" type="search" placeholder="Filter by function or module" />
+          </div>
+          <p class="small-note">
+            Source: <code>api-reference.json</code>. The function signature is shown at the top of
+            each API card header.
+          </p>
+
+          <div id="api-content" class="api-content" aria-live="polite">
+            <p class="small-note">Loading API reference...</p>
+          </div>
+        </article>
+
+        <article class="card" id="qa">
+          <h2>QA Checklist</h2>
+          <ul class="checklist">
+            <li>App starts and sign-in prompt appears.</li>
+            <li>Valid password grants access.</li>
+            <li>Phase selection and manual upload both parse correctly.</li>
+            <li>Statistics, timeline, comparison, and prompt tabs render without errors.</li>
+            <li>Git correlation works with valid repo path.</li>
+          </ul>
+        </article>
+
+        <article class="card" id="limits">
+          <h2>Known Limits and Future Work</h2>
+          <ul>
+            <li>Success/error metrics are heuristic, not ground-truth correctness.</li>
+            <li>Git insertion counts represent volume, not authorship certainty.</li>
+            <li>Future work: add automated tests, richer schema validation, and export features.</li>
+          </ul>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <a href="#top">Back to top</a>
+      <p>Copilot History Analyzer Developer Guide</p>
+    </footer>
+  </body>
+</html>

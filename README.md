@@ -132,3 +132,11 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 - Keep parsing and analytics logic in services/.
 - Keep UI-only logic in views/.
 - Add new tabs by implementing a renderer in views/tabs.py and wiring it in app.py.
+
+## Developer guide website
+
+A full developer guide and internal API reference website is available at:
+
+- docs/developer-guide-site/index.html
+
+Open it directly in a browser, or serve the folder with a static server for sharing.

@@ -1,0 +1,578 @@
+window.API_REFERENCE_DATA = {
+  "generatedFor": "Copilot History Analyzer",
+  "schemaVersion": "1.0",
+  "modules": [
+    {
+      "module": "app.py",
+      "role": "Application orchestration and sidebar workflow",
+      "patterns": [
+        "Functional core with orchestration shell",
+        "Single-responsibility helper functions",
+        "Explicit UI-to-service delegation"
+      ],
+      "functions": [
+        {
+          "name": "build_chat_session_sidebar",
+          "signature": "build_chat_session_sidebar(df_chat_all: pd.DataFrame) -> str | None",
+          "summary": "Builds the session picker UI and returns the selected file name.",
+          "params": [
+            {
+              "name": "df_chat_all",
+              "type": "pd.DataFrame",
+              "description": "Chat rows with file_name, suspected_user, and timestamp columns."
+            }
+          ],
+          "returns": "Selected file_name string or null when no sessions are available.",
+          "sideEffects": [
+            "Writes sidebar controls and labels",
+            "Formats timestamps for display"
+          ],
+          "implementationNotes": [
+            "Maps human-readable labels back to raw file names",
+            "Keeps UI labels contextual with user and start time"
+          ]
+        },
+        {
+          "name": "build_analysis_filters_sidebar",
+          "signature": "build_analysis_filters_sidebar(df_chat_all: pd.DataFrame) -> pd.DataFrame",
+          "summary": "Renders multiselect filter controls and returns session-filtered rows.",
+          "params": [
+            {
+              "name": "df_chat_all",
+              "type": "pd.DataFrame",
+              "description": "Full normalized chat dataframe."
+            }
+          ],
+          "returns": "Subset dataframe containing only selected sessions.",
+          "sideEffects": [
+            "Writes sidebar expander and multiselect"
+          ],
+          "implementationNotes": [
+            "Defaults to all sessions to avoid accidental empty analysis"
+          ]
+        },
+        {
+          "name": "load_git_data",
+          "signature": "load_git_data(repo_path: str) -> pd.DataFrame",
+          "summary": "Loads git history from a repository path when valid.",
+          "params": [
+            {
+              "name": "repo_path",
+              "type": "str",
+              "description": "Path to local git repository root."
+            }
+          ],
+          "returns": "Timestamp-sorted commit dataframe or empty dataframe when invalid.",
+          "sideEffects": [
+            "Reads repository commits via service layer"
+          ],
+          "implementationNotes": [
+            "Guards with os.path.isdir before parsing",
+            "Sorts output by timestamp for timeline rendering"
+          ]
+        },
+        {
+          "name": "main",
+          "signature": "main() -> None",
+          "summary": "Coordinates app setup, input collection, parsing, filtering, and tab rendering.",
+          "params": [],
+          "returns": "None",
+          "sideEffects": [
+            "Writes all top-level UI",
+            "Triggers data parsing and tab rendering"
+          ],
+          "implementationNotes": [
+            "Builds a unified file list from uploads and discovered phase files",
+            "Stops early with user-friendly messages for empty/invalid inputs"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "services/data_processing.py",
+      "role": "Data access, parsing, and normalization",
+      "patterns": [
+        "Defensive parsing against malformed records",
+        "Normalization boundary between raw JSON and analytics",
+        "Error isolation per file"
+      ],
+      "functions": [
+        {
+          "name": "discover_available_phases",
+          "signature": "discover_available_phases(data_dir: str = DATA_DIR) -> list[str]",
+          "summary": "Lists top-level phase directories under data root.",
+          "params": [
+            {
+              "name": "data_dir",
+              "type": "str",
+              "description": "Root data folder path."
+            }
+          ],
+          "returns": "List of first-level phase directory names.",
+          "sideEffects": [
+            "Reads local filesystem"
+          ],
+          "implementationNotes": [
+            "Returns empty list when data root is missing"
+          ]
+        },
+        {
+          "name": "gather_phase_files",
+          "signature": "gather_phase_files(selected_phases: Iterable[str], data_dir: str = DATA_DIR) -> list[str]",
+          "summary": "Recursively collects JSON files from selected phase directories.",
+          "params": [
+            {
+              "name": "selected_phases",
+              "type": "Iterable[str]",
+              "description": "Phase folder names selected by user."
+            },
+            {
+              "name": "data_dir",
+              "type": "str",
+              "description": "Data root folder."
+            }
+          ],
+          "returns": "Flat list of JSON file paths.",
+          "sideEffects": [
+            "Walks filesystem recursively"
+          ],
+          "implementationNotes": [
+            "Skips missing phase folders without raising"
+          ]
+        },
+        {
+          "name": "_infer_phase_name",
+          "signature": "_infer_phase_name(source_path: str) -> str",
+          "summary": "Infers phase label from source path segments.",
+          "params": [
+            {
+              "name": "source_path",
+              "type": "str",
+              "description": "File path or upload source name."
+            }
+          ],
+          "returns": "Inferred phase name or 'Uploaded'.",
+          "sideEffects": [],
+          "implementationNotes": [
+            "Normalizes path separators before extraction"
+          ]
+        },
+        {
+          "name": "_extract_suspected_user_from_requests",
+          "signature": "_extract_suspected_user_from_requests(requests: list[dict]) -> str",
+          "summary": "Extracts probable username from path-like metadata in request variables.",
+          "params": [
+            {
+              "name": "requests",
+              "type": "list[dict]",
+              "description": "Raw request records from export file."
+            }
+          ],
+          "returns": "Resolved username or 'Unknown User'.",
+          "sideEffects": [],
+          "implementationNotes": [
+            "Regex supports both Windows and Unix-style paths"
+          ]
+        },
+        {
+          "name": "_extract_referenced_files",
+          "signature": "_extract_referenced_files(req: dict) -> list[str]",
+          "summary": "Collects basename-only referenced file names from request variable metadata.",
+          "params": [
+            {
+              "name": "req",
+              "type": "dict",
+              "description": "Single request object."
+            }
+          ],
+          "returns": "List of referenced file basenames.",
+          "sideEffects": [],
+          "implementationNotes": [
+            "Defensively skips malformed variable entries"
+          ]
+        },
+        {
+          "name": "_extract_code_metadata",
+          "signature": "_extract_code_metadata(assistant_msg: str) -> tuple[int, list[str]]",
+          "summary": "Counts code lines and detects code fence languages.",
+          "params": [
+            {
+              "name": "assistant_msg",
+              "type": "str",
+              "description": "Assistant response text."
+            }
+          ],
+          "returns": "Tuple of (code_line_count, language_list).",
+          "sideEffects": [],
+          "implementationNotes": [
+            "Ignores plain text outside fenced code blocks"
+          ]
+        },
+        {
+          "name": "parse_chat_data",
+          "signature": "parse_chat_data(files: list) -> pd.DataFrame",
+          "summary": "Parses uploaded/on-disk chat exports into normalized request-level rows.",
+          "params": [
+            {
+              "name": "files",
+              "type": "list",
+              "description": "Mixed list of file paths and Streamlit UploadedFile objects."
+            }
+          ],
+          "returns": "Normalized dataframe for downstream tabs and analytics.",
+          "sideEffects": [
+            "Reads JSON files",
+            "Emits Streamlit parse errors per file",
+            "Uses Streamlit cache_data decorator"
+          ],
+          "implementationNotes": [
+            "Skips malformed requests while preserving valid rows",
+            "Strips thinking blocks from assistant content concatenation",
+            "Computes derived metadata like checkpoint restore heuristic"
+          ]
+        },
+        {
+          "name": "parse_git_history",
+          "signature": "parse_git_history(path: str) -> pd.DataFrame",
+          "summary": "Parses commit metadata for timeline and volume comparisons.",
+          "params": [
+            {
+              "name": "path",
+              "type": "str",
+              "description": "Path to git repository root."
+            }
+          ],
+          "returns": "Commit-level dataframe with timestamp, author, message, and stats.",
+          "sideEffects": [
+            "Reads git history via GitPython",
+            "Emits Streamlit error if parsing fails"
+          ],
+          "implementationNotes": [
+            "Gracefully returns empty dataframe on failure"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "services/analytics.py",
+      "role": "Pure analytics and normalization helpers",
+      "patterns": [
+        "Pure functions for testability",
+        "Heuristic feature extraction",
+        "Empty-safe metric guards"
+      ],
+      "functions": [
+        {
+          "name": "calculate_success_metrics",
+          "signature": "calculate_success_metrics(df: pd.DataFrame) -> tuple[int, int]",
+          "summary": "Computes code-response count and heuristic flagged-revert count.",
+          "params": [
+            {
+              "name": "df",
+              "type": "pd.DataFrame",
+              "description": "Chat dataframe with session ordering fields."
+            }
+          ],
+          "returns": "Tuple of (total_code_responses, flagged_reverts).",
+          "sideEffects": [],
+          "implementationNotes": [
+            "Uses short, negative follow-up prompts as a proxy for failed suggestions"
+          ]
+        },
+        {
+          "name": "analyze_prompt_style",
+          "signature": "analyze_prompt_style(df: pd.DataFrame) -> pd.DataFrame",
+          "summary": "Classifies prompt descriptors and computes complexity/length metadata.",
+          "params": [
+            {
+              "name": "df",
+              "type": "pd.DataFrame",
+              "description": "Normalized chat dataframe."
+            }
+          ],
+          "returns": "Prompt-level dataframe for style and comparative visualizations.",
+          "sideEffects": [],
+          "implementationNotes": [
+            "Descriptor extraction uses transparent keyword heuristics",
+            "Outputs boolean flags for chart-friendly aggregation"
+          ]
+        },
+        {
+          "name": "safe_mean",
+          "signature": "safe_mean(series: pd.Series) -> float",
+          "summary": "Returns mean for non-empty series and 0.0 otherwise.",
+          "params": [
+            {
+              "name": "series",
+              "type": "pd.Series",
+              "description": "Numeric series input."
+            }
+          ],
+          "returns": "Numeric mean with empty guard.",
+          "sideEffects": [],
+          "implementationNotes": [
+            "Prevents NaN-heavy metric cards"
+          ]
+        },
+        {
+          "name": "safe_rate",
+          "signature": "safe_rate(df: pd.DataFrame, col: str) -> float",
+          "summary": "Returns boolean-column percentage rate with empty guard.",
+          "params": [
+            {
+              "name": "df",
+              "type": "pd.DataFrame",
+              "description": "Input dataframe."
+            },
+            {
+              "name": "col",
+              "type": "str",
+              "description": "Boolean indicator column name."
+            }
+          ],
+          "returns": "Rate in range 0-100.",
+          "sideEffects": [],
+          "implementationNotes": [
+            "Used heavily in phase comparison normalization"
+          ]
+        },
+        {
+          "name": "phase_duration_days",
+          "signature": "phase_duration_days(df_phase_chat: pd.DataFrame) -> float",
+          "summary": "Computes elapsed phase duration in days.",
+          "params": [
+            {
+              "name": "df_phase_chat",
+              "type": "pd.DataFrame",
+              "description": "Phase-scoped chat rows."
+            }
+          ],
+          "returns": "Non-negative day span.",
+          "sideEffects": [],
+          "implementationNotes": [
+            "Uses min/max timestamp boundaries"
+          ]
+        },
+        {
+          "name": "tokens_per_prompt",
+          "signature": "tokens_per_prompt(df_phase_chat: pd.DataFrame) -> float",
+          "summary": "Computes average prompt+completion tokens per interaction.",
+          "params": [
+            {
+              "name": "df_phase_chat",
+              "type": "pd.DataFrame",
+              "description": "Phase-scoped chat rows."
+            }
+          ],
+          "returns": "Average token count per prompt.",
+          "sideEffects": [],
+          "implementationNotes": [
+            "Returns 0.0 for empty input"
+          ]
+        },
+        {
+          "name": "error_rate_percent",
+          "signature": "error_rate_percent(df_phase_chat: pd.DataFrame) -> float",
+          "summary": "Converts flagged revert ratio into normalized percentage.",
+          "params": [
+            {
+              "name": "df_phase_chat",
+              "type": "pd.DataFrame",
+              "description": "Phase-scoped chat rows."
+            }
+          ],
+          "returns": "Heuristic error percentage.",
+          "sideEffects": [],
+          "implementationNotes": [
+            "Delegates baseline counts to calculate_success_metrics"
+          ]
+        },
+        {
+          "name": "avg_interactions_per_day",
+          "signature": "avg_interactions_per_day(df_phase_chat: pd.DataFrame) -> float",
+          "summary": "Computes phase interaction density by normalized day span.",
+          "params": [
+            {
+              "name": "df_phase_chat",
+              "type": "pd.DataFrame",
+              "description": "Phase-scoped chat rows."
+            }
+          ],
+          "returns": "Interactions per day (minimum denominator of 1 day).",
+          "sideEffects": [],
+          "implementationNotes": [
+            "Avoids division by values under 1 day"
+          ]
+        },
+        {
+          "name": "top_model_share_percent",
+          "signature": "top_model_share_percent(df_phase_chat: pd.DataFrame) -> tuple[float, str]",
+          "summary": "Returns dominant model usage share and model name.",
+          "params": [
+            {
+              "name": "df_phase_chat",
+              "type": "pd.DataFrame",
+              "description": "Phase-scoped chat rows with model column."
+            }
+          ],
+          "returns": "Tuple of (share_percent, model_name).",
+          "sideEffects": [],
+          "implementationNotes": [
+            "Returns (0.0, 'N/A') on empty input"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "services/auth.py",
+      "role": "Authentication gate and session flag handling",
+      "patterns": [
+        "Fail-fast authentication",
+        "Constant-time secret comparison",
+        "Session-state driven UI gating"
+      ],
+      "functions": [
+        {
+          "name": "require_password",
+          "signature": "require_password() -> None",
+          "summary": "Enforces password authentication before app rendering continues.",
+          "params": [],
+          "returns": "None",
+          "sideEffects": [
+            "Reads Streamlit secrets and environment variables",
+            "Writes Streamlit auth UI",
+            "Stops execution on failed auth"
+          ],
+          "implementationNotes": [
+            "Checks Streamlit secrets first, then APP_PASSWORD env variable",
+            "Uses hmac.compare_digest for timing-safe checks"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "views/tabs.py",
+      "role": "Presentation layer for all Streamlit tabs",
+      "patterns": [
+        "View-layer isolation",
+        "Reusable analytics delegation",
+        "Progressive disclosure through tabbed UI"
+      ],
+      "functions": [
+        {
+          "name": "render_chat_history_tab",
+          "signature": "render_chat_history_tab(df_chat_all: pd.DataFrame, selected_chat_file: str | None) -> None",
+          "summary": "Renders transcript-style chat history for selected session.",
+          "params": [
+            {
+              "name": "df_chat_all",
+              "type": "pd.DataFrame",
+              "description": "Full chat dataset."
+            },
+            {
+              "name": "selected_chat_file",
+              "type": "str | None",
+              "description": "Selected session file name."
+            }
+          ],
+          "returns": "None",
+          "sideEffects": [
+            "Writes Streamlit chat message components"
+          ],
+          "implementationNotes": [
+            "Preserves chronological flow and metadata context"
+          ]
+        },
+        {
+          "name": "render_statistics_tab",
+          "signature": "render_statistics_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) -> None",
+          "summary": "Renders AI quality, contribution, latency, language, and event metrics.",
+          "params": [
+            {
+              "name": "df_chat_analysis",
+              "type": "pd.DataFrame",
+              "description": "Filtered analysis chat rows."
+            },
+            {
+              "name": "df_git",
+              "type": "pd.DataFrame",
+              "description": "Optional git commit dataset."
+            }
+          ],
+          "returns": "None",
+          "sideEffects": [
+            "Writes multiple metric cards and Plotly figures"
+          ],
+          "implementationNotes": [
+            "Gracefully degrades when git data is absent"
+          ]
+        },
+        {
+          "name": "render_timeline_tab",
+          "signature": "render_timeline_tab(df_chat_analysis: pd.DataFrame, df_git: pd.DataFrame) -> None",
+          "summary": "Builds unified event timeline from chat interactions and git commits.",
+          "params": [
+            {
+              "name": "df_chat_analysis",
+              "type": "pd.DataFrame",
+              "description": "Filtered analysis chat rows."
+            },
+            {
+              "name": "df_git",
+              "type": "pd.DataFrame",
+              "description": "Optional git commit dataset."
+            }
+          ],
+          "returns": "None",
+          "sideEffects": [
+            "Writes timeline/velocity/daily activity charts"
+          ],
+          "implementationNotes": [
+            "Normalizes source events to a common schema before plotting"
+          ]
+        },
+        {
+          "name": "render_comparative_tab",
+          "signature": "render_comparative_tab(df_chat_analysis: pd.DataFrame) -> None",
+          "summary": "Compares two selected phases with normalized KPI and distribution views.",
+          "params": [
+            {
+              "name": "df_chat_analysis",
+              "type": "pd.DataFrame",
+              "description": "Filtered analysis chat rows with phase labels."
+            }
+          ],
+          "returns": "None",
+          "sideEffects": [
+            "Writes phase selectors, metric cards, and comparative charts"
+          ],
+          "implementationNotes": [
+            "Uses prompt-level derived features from analyze_prompt_style",
+            "Normalizes by phase size and duration to reduce sampling bias"
+          ]
+        },
+        {
+          "name": "render_prompt_analysis_tab",
+          "signature": "render_prompt_analysis_tab(df_chat_analysis: pd.DataFrame) -> None",
+          "summary": "Displays prompt repository table and descriptor distribution analytics.",
+          "params": [
+            {
+              "name": "df_chat_analysis",
+              "type": "pd.DataFrame",
+              "description": "Filtered analysis chat rows."
+            }
+          ],
+          "returns": "None",
+          "sideEffects": [
+            "Writes prompt-level data table and descriptor chart"
+          ],
+          "implementationNotes": [
+            "Supports quality review of individual prompts and aggregate style trends"
+          ]
+        }
+      ]
+    }
+  ]
+}
+;
+

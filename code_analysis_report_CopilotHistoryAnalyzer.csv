@@ -1,0 +1,6 @@
+File Name,Path,Extension,Total Lines,Code Lines,Comment Lines,Comment Ratio (%)
+app.py,app.py,.py,183,102,38,20.77
+analytics.py,services\analytics.py,.py,241,119,62,25.73
+auth.py,services\auth.py,.py,58,31,13,22.41
+data_processing.py,services\data_processing.py,.py,350,208,61,17.43
+tabs.py,views\tabs.py,.py,589,418,83,14.09
