@@ -1,0 +1,116 @@
+2026-04-13 22:55:20.363 [info] Loading telemetry with client attributes {"KiroClientVersion":"0.11","machineId":"aae98143b93e8fe22a527cb261b76b400070110c56d6f62b8f82e664ab79a7a7","userId":"","platform":"win32-10.0.26200","channel":"stable","version":"0.11.107"}
+2026-04-13 22:55:20.363 [info] Auth refresh loop: token close to expiry, attempting refresh - provider: %s, authMethod: %s, expiresAt: %s Github social 2026-04-11T22:33:57.632Z
+2026-04-13 22:55:20.363 [info] [spec-telemetry] Registered and subscribed to agent events
+2026-04-13 22:55:20.363 [info] [EnterpriseSettingsManager] Setting up MCP
+2026-04-13 22:55:20.363 [info] [EnterpriseSettingsManager] Active
+2026-04-13 22:55:20.363 [info] AuthCallbackHandler: Initialized
+2026-04-13 22:55:20.363 [info] [SessionResume] Registering resume-session URI handler
+2026-04-13 22:55:20.363 [info] [EnterpriseSettingsManager] Non-enterprise mode
+2026-04-13 22:55:20.363 [info] [notification-service] Registered and subscribed to agent events
+2026-04-13 22:55:20.363 [info] [agent-event-polling] Service created {"command":"kiro.usageLimits.getUsageLimits","intervalMs":300000,"aggregationDelayMs":120000}
+2026-04-13 22:55:20.363 [info] [agent-event-polling] Service registered successfully
+2026-04-13 22:55:20.363 [info] [storage] Initialized storage at 'c:\Users\jason\AppData\Roaming\Kiro\User\globalStorage\kiro.kiroagent\08d36289c114dd772244b45b173b5701'
+2026-04-13 22:55:20.363 [info] [FirstTimeProject] Project has been opened before in Kiro
+2026-04-13 22:55:20.363 [info] Trying to clear 0 stuck executions []
+2026-04-13 22:55:21.112 [info] Auth refresh loop: refresh completed successfully
+2026-04-13 22:55:21.742 [info] [RemoteToolsDiscovery] Fetching available Remote tools
+2026-04-13 22:55:21.743 [info] Congratulations, "Kiro" is now active!
+2026-04-13 22:55:22.053 [info] [EnterpriseSettingsManager] Non-enterprise mode
+2026-04-13 22:55:22.062 [info] Profile-based initialization completed.
+2026-04-13 22:55:22.152 [info] [RemoteToolsDiscovery] Discovered 1 Remote tools
+2026-04-13 22:59:13.368 [info] [agent-controller] Triggered new agent: chat-agent (autonomyMode=Supervised)
+2026-04-13 22:59:13.371 [info] [agent-event-polling] Polling started {"intervalMs":300000}
+2026-04-13 22:59:13.609 [info] [AgentIterator] Checking for intent overrides
+2026-04-13 22:59:13.622 [info] [AgentIterator] Detecting intent
+2026-04-13 22:59:13.623 [info] [Agent Classifier] using weight overrides {"chat":1,"do":1,"spec":1.4}
+2026-04-13 22:59:13.623 [info] [AgentIterator] Parallel invoking agent
+2026-04-13 22:59:13.623 [info] [Steering] Populating steering for execution a2df2492-4caf-45e1-b0d0-d5e885303b30
+2026-04-13 22:59:13.625 [info] [Steering] ExistingFiles:  in a2df2492-4caf-45e1-b0d0-d5e885303b30
+2026-04-13 22:59:15.057 [info] [Agent Classifier] classification result {"intentResult":{"localIntent":{"chat":0,"do":0,"spec":1},"llmIntent":{"chat":0,"do":1,"spec":0},"finalIntent":{"chat":0,"do":1,"spec":0},"classification":"do"},"userInputOptions":[]}
+2026-04-13 22:59:15.423 [info] [AgentIterator] Synchronizing results
+2026-04-13 22:59:15.423 [info] [AgentIterator] Processing intent detection result
+2026-04-13 22:59:15.427 [info] [ChatAgent] Processing model response stream
+2026-04-13 22:59:15.427 [info] [Steering] Populating steering for execution a2df2492-4caf-45e1-b0d0-d5e885303b30
+2026-04-13 22:59:15.427 [info] [Steering] ExistingFiles:  in a2df2492-4caf-45e1-b0d0-d5e885303b30
+2026-04-13 22:59:18.988 [info] [dispatch-latency] sendExecutionAction readFiles took 12.1ms {"actionId":"tooluse_XQitXvcEtLhLExhCjkHocB","actionState":"Running"}
+2026-04-13 22:59:19.123 [info] [AgentIterator] Parallel invoking agent
+2026-04-13 22:59:19.123 [info] [Steering] Populating steering for execution a2df2492-4caf-45e1-b0d0-d5e885303b30
+2026-04-13 22:59:19.124 [info] [Steering] ExistingFiles: /c:/Users/jason/s26-michelin/backend/database.py, /c:/Users/jason/s26-michelin/backend/__init__.py in a2df2492-4caf-45e1-b0d0-d5e885303b30
+2026-04-13 22:59:20.464 [info] [AgentIterator] Synchronizing results
+2026-04-13 22:59:20.516 [info] [AgentIterator] Processing intent detection result
+2026-04-13 22:59:20.518 [info] [ChatAgent] Processing model response stream
+2026-04-13 22:59:20.518 [info] [Steering] Populating steering for execution a2df2492-4caf-45e1-b0d0-d5e885303b30
+2026-04-13 22:59:20.518 [info] [Steering] ExistingFiles: /c:/Users/jason/s26-michelin/backend/database.py, /c:/Users/jason/s26-michelin/backend/__init__.py in a2df2492-4caf-45e1-b0d0-d5e885303b30
+2026-04-13 22:59:24.840 [info] [agent-event-polling] Polling stopped
+2026-04-13 22:59:24.840 [info] [agent-controller] Progressing model queue {"activeExecution":false,"queueSize":0}
+2026-04-13 22:59:24.844 [info] [SupervisedDiffSync] Cleaned up supervised diff sessions for execution {"executionId":"a2df2492-4caf-45e1-b0d0-d5e885303b30"}
+2026-04-13 23:00:02.597 [info] [agent-controller] Triggered new agent: chat-agent (autonomyMode=Supervised)
+2026-04-13 23:00:02.597 [info] [agent-event-polling] Polling started {"intervalMs":300000}
+2026-04-13 23:00:02.634 [info] [AgentIterator] Checking for intent overrides
+2026-04-13 23:00:02.639 [info] [AgentIterator] Detecting intent
+2026-04-13 23:00:02.639 [info] [Agent Classifier] using weight overrides {"chat":1,"do":1,"spec":1.4}
+2026-04-13 23:00:02.639 [info] [AgentIterator] Parallel invoking agent
+2026-04-13 23:00:02.639 [info] [Steering] Populating steering for execution f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:00:02.640 [info] [Steering] ExistingFiles: /c:/Users/jason/s26-michelin/backend/database.py, /c:/Users/jason/s26-michelin/backend/__init__.py in f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:00:05.518 [info] [Agent Classifier] classification result {"intentResult":{"localIntent":{"chat":0,"do":0,"spec":0},"llmIntent":{"chat":0,"do":1,"spec":0},"finalIntent":{"chat":0,"do":1,"spec":0},"classification":"do"},"userInputOptions":[]}
+2026-04-13 23:00:06.026 [info] [AgentIterator] Synchronizing results
+2026-04-13 23:00:06.026 [info] [AgentIterator] Processing intent detection result
+2026-04-13 23:00:06.032 [info] [ChatAgent] Processing model response stream
+2026-04-13 23:00:06.032 [info] [Steering] Populating steering for execution f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:00:06.032 [info] [Steering] ExistingFiles: /c:/Users/jason/s26-michelin/backend/database.py, /c:/Users/jason/s26-michelin/backend/__init__.py in f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:00:06.821 [info] [WriteFile] complete write file: /c:/Users/jason/s26-michelin/backend/main.py
+2026-04-13 23:00:06.880 [info] [notification-service] Showed native inputRequired notification for execution f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:00:11.952 [info] [AgentIterator] Parallel invoking agent
+2026-04-13 23:00:11.952 [info] [Steering] Populating steering for execution f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:00:11.953 [info] [Steering] ExistingFiles: /c:/Users/jason/s26-michelin/backend/database.py, /c:/Users/jason/s26-michelin/backend/__init__.py in f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:00:13.729 [info] [AgentIterator] Synchronizing results
+2026-04-13 23:00:13.730 [info] [AgentIterator] Processing intent detection result
+2026-04-13 23:00:13.731 [info] [ChatAgent] Processing model response stream
+2026-04-13 23:00:13.732 [info] [Steering] Populating steering for execution f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:00:13.732 [info] [Steering] ExistingFiles: /c:/Users/jason/s26-michelin/backend/database.py, /c:/Users/jason/s26-michelin/backend/__init__.py in f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:00:15.153 [info] [dispatch-latency] sendExecutionAction readFiles took 263.6ms {"actionId":"tooluse_jxFv9ySTyq0xEwretQFIFu","actionState":"Running"}
+2026-04-13 23:00:16.304 [info] [AgentIterator] Parallel invoking agent
+2026-04-13 23:00:16.304 [info] [Steering] Populating steering for execution f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:00:16.304 [info] [Steering] ExistingFiles: /c:/Users/jason/s26-michelin/backend/database.py, /c:/Users/jason/s26-michelin/backend/__init__.py, /c:/Users/jason/s26-michelin/backend/main.py in f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:00:17.853 [info] [AgentIterator] Synchronizing results
+2026-04-13 23:00:17.853 [info] [AgentIterator] Processing intent detection result
+2026-04-13 23:00:17.854 [info] [ChatAgent] Processing model response stream
+2026-04-13 23:00:17.854 [info] [Steering] Populating steering for execution f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:00:17.854 [info] [Steering] ExistingFiles: /c:/Users/jason/s26-michelin/backend/database.py, /c:/Users/jason/s26-michelin/backend/__init__.py, /c:/Users/jason/s26-michelin/backend/main.py in f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:00:18.636 [info] [WriteFile] complete write file: /c:/Users/jason/s26-michelin/backend/main.py
+2026-04-13 23:00:18.668 [info] [AgentIterator] Parallel invoking agent
+2026-04-13 23:00:18.668 [info] [Steering] Populating steering for execution f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:00:18.668 [info] [Steering] ExistingFiles: /c:/Users/jason/s26-michelin/backend/database.py, /c:/Users/jason/s26-michelin/backend/__init__.py, /c:/Users/jason/s26-michelin/backend/main.py in f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:00:20.854 [info] [AgentIterator] Synchronizing results
+2026-04-13 23:00:20.854 [info] [AgentIterator] Processing intent detection result
+2026-04-13 23:00:20.856 [info] [ChatAgent] Processing model response stream
+2026-04-13 23:00:20.856 [info] [Steering] Populating steering for execution f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:00:20.856 [info] [Steering] ExistingFiles: /c:/Users/jason/s26-michelin/backend/database.py, /c:/Users/jason/s26-michelin/backend/__init__.py, /c:/Users/jason/s26-michelin/backend/main.py in f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:00:21.524 [info] [notification-service] Notification closed for execution f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:00:21.528 [info] [notification-service] Showed native inputRequired notification for execution f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:00:23.526 [info] [agent-event-polling] Polling stopped
+2026-04-13 23:00:23.526 [info] [agent-controller] Progressing model queue {"activeExecution":false,"queueSize":0}
+2026-04-13 23:00:23.527 [info] [SupervisedDiffSync] Cleaned up supervised diff sessions for execution {"executionId":"f5fb40f1-8fb0-48d2-bc5c-0f03bab72708"}
+2026-04-13 23:01:26.901 [info] [agent-controller] Triggered new agent: chat-agent (autonomyMode=Supervised)
+2026-04-13 23:01:26.901 [info] [agent-event-polling] Polling started {"intervalMs":300000}
+2026-04-13 23:01:26.933 [info] [AgentIterator] Checking for intent overrides
+2026-04-13 23:01:26.937 [info] [AgentIterator] Detecting intent
+2026-04-13 23:01:26.937 [info] [Agent Classifier] using weight overrides {"chat":1,"do":1,"spec":1.4}
+2026-04-13 23:01:26.937 [info] [AgentIterator] Parallel invoking agent
+2026-04-13 23:01:26.937 [info] [Steering] Populating steering for execution cc312147-9e87-401c-8992-9514f853d370
+2026-04-13 23:01:26.938 [info] [Steering] ExistingFiles: /c:/Users/jason/s26-michelin/backend/database.py, /c:/Users/jason/s26-michelin/backend/__init__.py, /c:/Users/jason/s26-michelin/backend/main.py in cc312147-9e87-401c-8992-9514f853d370
+2026-04-13 23:01:28.169 [info] [AgentIterator] Synchronizing results
+2026-04-13 23:01:28.169 [info] [AgentIterator] Processing intent detection result
+2026-04-13 23:01:28.170 [info] [ChatAgent] Processing model response stream
+2026-04-13 23:01:28.170 [info] [Steering] Populating steering for execution cc312147-9e87-401c-8992-9514f853d370
+2026-04-13 23:01:28.170 [info] [Steering] ExistingFiles: /c:/Users/jason/s26-michelin/backend/database.py, /c:/Users/jason/s26-michelin/backend/__init__.py, /c:/Users/jason/s26-michelin/backend/main.py in cc312147-9e87-401c-8992-9514f853d370
+2026-04-13 23:01:29.238 [error] Error classifying intent with LLM: Unexpected response format from model
+2026-04-13 23:01:29.239 [info] [Agent Classifier] classification result {"intentResult":{"localIntent":{"chat":0,"do":0,"spec":0},"llmIntent":{"chat":0,"do":0,"spec":0},"finalIntent":{"chat":0.33,"do":0.33,"spec":0.33},"classification":"chat"},"userInputOptions":[]}
+2026-04-13 23:01:29.949 [info] [agent-event-polling] Polling stopped
+2026-04-13 23:01:29.949 [info] [agent-controller] Progressing model queue {"activeExecution":false,"queueSize":0}
+2026-04-13 23:01:29.951 [info] [SupervisedDiffSync] Cleaned up supervised diff sessions for execution {"executionId":"cc312147-9e87-401c-8992-9514f853d370"}
+2026-04-13 23:24:26.432 [info] [notification-service] Notification closed for execution f5fb40f1-8fb0-48d2-bc5c-0f03bab72708
+2026-04-13 23:24:26.433 [info] [notification-service] Disposed and cleaned up resources
+2026-04-13 23:24:26.433 [info] [spec-telemetry] Disposed and cleaned up resources
+2026-04-13 23:24:26.433 [info] [agent-event-polling] Service disposed
+2026-04-13 23:24:26.433 [info] [resource-notifications] Disposed of all subscriptions

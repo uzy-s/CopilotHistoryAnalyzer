@@ -1,0 +1,11 @@
+2026-03-27 13:58:48.950 [info] [WebviewProcessMonitor] Service starting
+2026-03-27 13:58:49.264 [info] update#setState idle
+2026-03-27 13:59:19.273 [info] update#setState checking for updates
+2026-03-27 13:59:19.653 [info] update#setState idle
+2026-03-27 14:41:16.176 [info] [WebviewProcessMonitor] Tracking webview renderer: pid=2532, origin=vscode-webview://114h948a8sa013o3eu3jbc6pak18c2trljed4cok7nglkuk3frnh, windowId=1 (total tracked processes: 1)
+2026-03-27 14:41:16.179 [info] [WebviewProcessMonitor] Tracking webview renderer: pid=2652, origin=vscode-webview://1sghhpt9lah82clpd4pv5pk82jb0vsluf529gte056ghct73qt56, windowId=1 (total tracked processes: 2)
+2026-03-27 14:41:48.037 [error] [WebviewProcessMonitor] Webview renderer process gone: pid=2532, origins=[vscode-webview://114h948a8sa013o3eu3jbc6pak18c2trljed4cok7nglkuk3frnh], frames=1, windows=[1]
+2026-03-27 14:41:48.043 [error] [WebviewProcessMonitor] Webview renderer process gone: pid=2652, origins=[vscode-webview://1sghhpt9lah82clpd4pv5pk82jb0vsluf529gte056ghct73qt56], frames=1, windows=[1]
+2026-03-27 14:59:19.329 [info] update#setState checking for updates
+2026-03-27 14:59:19.897 [info] update#setState idle
+2026-03-27 15:12:44.119 [info] Extension host with pid 2316 exited with code: 0, signal: unknown.

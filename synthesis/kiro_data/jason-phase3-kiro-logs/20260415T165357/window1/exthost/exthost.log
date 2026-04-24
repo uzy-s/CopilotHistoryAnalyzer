@@ -1,0 +1,85 @@
+2026-04-15 16:54:13.196 [info] Extension host with pid 8784 started
+2026-04-15 16:54:13.196 [info] Skipping acquiring lock for c:\Users\jason\AppData\Roaming\Kiro\User\workspaceStorage\5fb00747c957834b85413b576c0dde91.
+2026-04-15 16:54:13.239 [info] ExtensionService#_doActivateExtension vscode.emmet, startup: false, activationEvent: 'onLanguage'
+2026-04-15 16:54:13.521 [info] ExtensionService#_doActivateExtension kiro.kiroAgent, startup: false, activationEvent: 'onView:kiroAgent.continueGUIView'
+2026-04-15 16:54:28.067 [info] ExtensionService#_doActivateExtension vscode.terminal-suggest, startup: false, activationEvent: 'onTerminalShellIntegration:*'
+2026-04-15 16:54:28.378 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:54:28.378 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:54:28.378 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:54:28.378 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:54:28.378 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:54:28.379 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:54:28.379 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:54:28.379 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:54:28.379 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:54:28.379 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:54:28.385 [info] ExtensionService#_doActivateExtension vscode.git-base, startup: true, activationEvent: '*', root cause: vscode.git
+2026-04-15 16:54:28.524 [info] ExtensionService#_doActivateExtension vscode.git, startup: true, activationEvent: '*'
+2026-04-15 16:54:28.656 [info] ExtensionService#_doActivateExtension vscode.github, startup: true, activationEvent: '*'
+2026-04-15 16:54:32.026 [info] Eager extensions activated
+2026-04-15 16:54:32.032 [info] ExtensionService#_doActivateExtension vscode.debug-auto-launch, startup: false, activationEvent: 'onStartupFinished'
+2026-04-15 16:54:32.118 [info] ExtensionService#_doActivateExtension vscode.merge-conflict, startup: false, activationEvent: 'onStartupFinished'
+2026-04-15 16:54:34.619 [info] ExtensionService#_doActivateExtension vscode.github-authentication, startup: false, activationEvent: 'onAuthenticationRequest:github'
+2026-04-15 16:54:34.777 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:54:34.777 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:54:34.777 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:54:34.777 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:54:34.777 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:54:34.777 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:55:19.526 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:55:19.879 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:55:34.871 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.192 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.192 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.192 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.192 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.192 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.192 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.192 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.192 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.192 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.192 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.192 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.192 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.192 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.192 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.192 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.192 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.192 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.193 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.193 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.193 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.193 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.193 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.193 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.193 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.193 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.193 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.193 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.193 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:16.193 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:18.158 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:20.239 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:20.239 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:20.239 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:20.239 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:20.239 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:20.239 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:20.239 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 16:56:27.824 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 17:04:56.748 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 17:04:56.755 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 17:14:31.803 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 17:14:31.803 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 17:14:31.803 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 17:18:59.478 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 17:18:59.478 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 17:18:59.478 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 17:18:59.478 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 17:18:59.478 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 17:18:59.478 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 17:18:59.478 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 17:18:59.478 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 17:18:59.478 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-04-15 17:50:28.152 [info] Extension host terminating: renderer closed the MessagePort
+2026-04-15 17:50:28.211 [info] Extension host with pid 8784 exiting with code 0

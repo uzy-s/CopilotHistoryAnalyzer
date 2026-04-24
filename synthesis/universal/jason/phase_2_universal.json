@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0.0",
+  "format": "universal_chat_sync",
+  "user_id": "jason",
+  "phase": "Phase 2",
+  "generated_at": "2026-04-24T10:55:30.687361Z",
+  "source_preservation": {
+    "is_destructive": false,
+    "notes": "Original source files remain unchanged; this file is normalized and source-linked."
+  },
+  "chat_turns": [],
+  "metrics": {
+    "man_days": 0,
+    "man_hours": 0.0,
+    "prompt_success_ratio": 0.0,
+    "prompt_success_rate": 0.0,
+    "prompt_to_feature_ratio": 0.0,
+    "total_prompts": 0,
+    "completed_features": 0,
+    "total_lines_written_by_selected_model_agent": 0,
+    "total_lines_written_by_humans": null,
+    "number_of_ai_lines_needing_human_revision": 0,
+    "total_code_responses": 0,
+    "flagged_reverts": 0,
+    "heuristic": {
+      "negative_keywords": [
+        "error",
+        "fix",
+        "no",
+        "wrong",
+        "fail",
+        "broken",
+        "bug",
+        "issue",
+        "doesn't work",
+        "didn't work",
+        "restore"
+      ],
+      "next_prompt_short_word_count_lt": 20
+    }
+  },
+  "nullability_contract": {
+    "rule": "Fields missing in a source are preserved as null in normalized turns.",
+    "common_null_fields_for_kiro": [
+      "prompt_tokens",
+      "completion_tokens",
+      "latency_ms",
+      "ttft_ms",
+      "edited_file_events",
+      "checkpoints_restored"
+    ]
+  }
+}

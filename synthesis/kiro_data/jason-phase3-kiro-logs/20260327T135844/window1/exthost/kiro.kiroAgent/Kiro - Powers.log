@@ -1,0 +1,21 @@
+2026-03-27 13:59:13.202 [info] [PowersV2] Starting Powers Registry initialization...
+2026-03-27 13:59:13.202 [info] [PowersV2] Kiro Recommended cache adapter configured
+2026-03-27 13:59:13.202 [info] [PowersV2] No migration needed
+2026-03-27 13:59:13.202 [info] [AutoInstall] Checking all registries for auto-install powers...
+2026-03-27 13:59:13.203 [info] [Powers] Kiro Powers registered
+2026-03-27 13:59:13.203 [info] [AutoInstall] Finished checking all registries
+2026-03-27 13:59:13.203 [info] [RegistryWatcher] Tracked 0 existing registry files
+2026-03-27 13:59:13.203 [info] [RegistryWatcher] Started watching: C:\Users\jason\.kiro\powers\registries
+2026-03-27 13:59:13.203 [info] [PowersV2] Powers Registry initialization complete
+2026-03-27 14:41:17.182 [info] [Powers] Manual sync requested for Kiro Recommended Powers Repository
+2026-03-27 14:41:17.182 [info] [KiroRecommendedCache] Fetching from https://prod.download.desktop.kiro.dev/powers/default_registry.json
+2026-03-27 14:41:17.194 [info] [Powers] getAvailablePowers called with filter: {
+  "byInstallationStatus": "installed"
+}
+2026-03-27 14:41:17.809 [info] [KiroRecommendedCache] Fetched 45 powers
+2026-03-27 14:41:17.811 [info] [Powers] Got 0 powers from kiro-powers
+2026-03-27 14:41:17.817 [info] [Powers] getAvailablePowers called with filter: {
+  "byInstallationStatus": "all",
+  "excludeUserAdded": true
+}
+2026-03-27 14:41:17.821 [info] [Powers] Got 45 powers from kiro-powers

@@ -193,6 +193,71 @@ def _extract_code_metadata(assistant_msg: str) -> tuple[int, list[str]]:
     return code_lines, languages
 
 
+def _parse_universal_chat_turns(data: dict, file_name: str, source_path: str) -> list[dict]:
+    """Parse universal synchronized chat format into legacy app row shape.
+
+    Args:
+        data: Loaded universal JSON payload.
+        file_name: Source file name being parsed.
+        source_path: Source path on disk.
+
+    Returns:
+        Rows in the same normalized shape produced for Copilot exports.
+    """
+    rows: list[dict] = []
+    chat_turns = data.get("chat_turns", [])
+    if not isinstance(chat_turns, list):
+        return rows
+
+    default_user = str(data.get("user_id") or "Unknown User")
+    default_phase = str(data.get("phase") or _infer_phase_name(source_path))
+
+    for turn in chat_turns:
+        if not isinstance(turn, dict):
+            continue
+
+        timestamp_raw = turn.get("timestamp")
+        if not timestamp_raw:
+            continue
+
+        try:
+            dt = datetime.fromisoformat(str(timestamp_raw).replace("Z", "+00:00"))
+        except Exception:
+            continue
+
+        languages = turn.get("languages", [])
+        if not isinstance(languages, list):
+            languages = []
+
+        referenced_files = turn.get("referenced_files", [])
+        if not isinstance(referenced_files, list):
+            referenced_files = []
+
+        rows.append(
+            {
+                "timestamp": dt,
+                "user_text": str(turn.get("user_text") or ""),
+                "assistant_text": str(turn.get("assistant_text") or ""),
+                "model": str(turn.get("model") or "Unknown"),
+                "completion_tokens": int(turn.get("completion_tokens") or 0),
+                "prompt_tokens": int(turn.get("prompt_tokens") or 0),
+                "code_lines_suggested": int(turn.get("code_lines_suggested") or 0),
+                "file_name": str(turn.get("session_id") or file_name),
+                "suspected_user": str(turn.get("suspected_user") or default_user),
+                "latency_ms": int(turn.get("latency_ms") or 0),
+                "ttft_ms": int(turn.get("ttft_ms") or 0),
+                "referenced_files": referenced_files,
+                "languages": languages,
+                "phase": str(turn.get("phase") or default_phase),
+                "source_path": source_path,
+                "edited_file_events": int(turn.get("edited_file_events") or 0),
+                "checkpoints_restored": int(turn.get("checkpoints_restored") or 0),
+            }
+        )
+
+    return rows
+
+
 @st.cache_data
 def parse_chat_data(files: list) -> pd.DataFrame:
     """Parse uploaded or on-disk chat JSON files into a normalized dataframe.
@@ -223,6 +288,11 @@ def parse_chat_data(files: list) -> pd.DataFrame:
                 source_path = uploaded_file.name
 
             phase_name = _infer_phase_name(source_path)
+
+            # Universal synchronized format support.
+            if isinstance(data, dict) and isinstance(data.get("chat_turns"), list):
+                all_requests.extend(_parse_universal_chat_turns(data, file_name, source_path))
+                continue
 
             requests = data.get("requests", [])
             if not isinstance(requests, list):

@@ -1,0 +1,9 @@
+2026-04-13 22:55:21.278 [info] [PowersV2] Starting Powers Registry initialization...
+2026-04-13 22:55:21.278 [info] [PowersV2] Kiro Recommended cache adapter configured
+2026-04-13 22:55:21.278 [info] [PowersV2] No migration needed
+2026-04-13 22:55:21.278 [info] [AutoInstall] Checking all registries for auto-install powers...
+2026-04-13 22:55:21.278 [info] [Powers] Kiro Powers registered
+2026-04-13 22:55:21.278 [info] [AutoInstall] Finished checking all registries
+2026-04-13 22:55:21.278 [info] [RegistryWatcher] Tracked 0 existing registry files
+2026-04-13 22:55:21.278 [info] [RegistryWatcher] Started watching: C:\Users\jason\.kiro\powers\registries
+2026-04-13 22:55:21.279 [info] [PowersV2] Powers Registry initialization complete

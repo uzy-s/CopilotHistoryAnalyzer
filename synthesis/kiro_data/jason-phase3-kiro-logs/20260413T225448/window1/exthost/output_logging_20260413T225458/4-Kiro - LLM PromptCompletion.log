@@ -1,0 +1,147 @@
+==========================================================================
+==========================================================================
+##### Completion options #####
+{
+  "contextLength": 40000,
+  "model": "agent",
+  "maxTokens": 4000,
+  "preserveContinuationId": false
+}
+
+##### Request options #####
+{}
+
+##### Prompt #####
+<user>
+```backend/main.py
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from backend.database import init_db
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()          # runs before first request
+    yield              # application runs here
+    # teardown (none needed) goes after yield
+
+
+app = FastAPI(lifespan=lifespan)
+
+from backend.routers import dashboard
+app.include_router(dashboard.router)
+
+```
+
+There is no module called "backend". This is preventing the import of the init_db function when the server is started
+
+==========================================================================
+==========================================================================
+Completion:
+
+
+
+==========================================================================
+==========================================================================
+##### Completion options #####
+{
+  "contextLength": 40000,
+  "model": "agent",
+  "maxTokens": 4000,
+  "preserveContinuationId": false
+}
+
+##### Request options #####
+{}
+
+##### Prompt #####
+<user>
+```backend/main.py
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from backend.database import init_db
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()          # runs before first request
+    yield              # application runs here
+    # teardown (none needed) goes after yield
+
+
+app = FastAPI(lifespan=lifespan)
+
+from backend.routers import dashboard
+app.include_router(dashboard.router)
+
+```
+
+There is no module called "backend". This is preventing the import of the init_db function when the server is started
+
+<assistant>
+
+
+<user>
+Change it to a relative import path
+
+==========================================================================
+==========================================================================
+Completion:
+
+
+
+==========================================================================
+==========================================================================
+##### Completion options #####
+{
+  "contextLength": 40000,
+  "model": "agent",
+  "maxTokens": 4000,
+  "preserveContinuationId": false
+}
+
+##### Request options #####
+{}
+
+##### Prompt #####
+<user>
+```backend/main.py
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from backend.database import init_db
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()          # runs before first request
+    yield              # application runs here
+    # teardown (none needed) goes after yield
+
+
+app = FastAPI(lifespan=lifespan)
+
+from backend.routers import dashboard
+app.include_router(dashboard.router)
+
+```
+
+There is no module called "backend". This is preventing the import of the init_db function when the server is started
+
+<assistant>
+
+
+<user>
+Change it to a relative import path
+
+<assistant>
+
+
+<user>
+I'm now receiving an error saying "ImportError: attempted relative import with no known parent package" when I'm attempting to start the server within the backend directory
+
+==========================================================================
+==========================================================================
+Completion:
+
+
+

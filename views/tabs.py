@@ -587,3 +587,88 @@ def render_prompt_analysis_tab(df_chat_analysis: pd.DataFrame) -> None:
         fig_desc = px.bar(desc_counts, x="Count", y="Descriptor", orientation="h", title="Distribution of Prompt Tone/Style")
         fig_desc.update_layout(yaxis={"categoryorder": "total ascending"})
         st.plotly_chart(fig_desc, width="stretch")
+
+
+def render_universal_required_stats_tab(df_universal_metrics: pd.DataFrame) -> None:
+    """Render required KPI stats from universal files.
+
+    Args:
+        df_universal_metrics: One row per universal file with extracted metrics.
+
+    Returns:
+        None. Renders Streamlit UI elements directly.
+    """
+    st.subheader("Universal Required Stats")
+    st.write("Metrics are loaded directly from selected universal files (per user, per phase).")
+
+    if df_universal_metrics.empty:
+        st.info("No universal metrics loaded. Select universal files in the sidebar.")
+        return
+
+    numeric_cols = [
+        "man_hours",
+        "man_days",
+        "prompt_success_ratio",
+        "prompt_success_rate",
+        "prompt_to_feature_ratio",
+        "total_lines_written_by_humans",
+        "total_lines_written_by_selected_model_agent",
+        "number_of_ai_lines_needing_human_revision",
+    ]
+    for col in numeric_cols:
+        if col in df_universal_metrics.columns:
+            df_universal_metrics[col] = pd.to_numeric(df_universal_metrics[col], errors="coerce")
+
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Total Man Hours", f"{df_universal_metrics['man_hours'].fillna(0).sum():.2f}")
+    col2.metric("Total Man Days", f"{df_universal_metrics['man_days'].fillna(0).sum():.0f}")
+    col3.metric(
+        "Avg Prompt Success Ratio",
+        f"{(df_universal_metrics['prompt_success_ratio'].dropna().mean() * 100.0 if len(df_universal_metrics['prompt_success_ratio'].dropna()) > 0 else 0.0):.1f}%",
+    )
+    col4.metric(
+        "Avg Prompt-to-Feature Ratio",
+        f"{(df_universal_metrics['prompt_to_feature_ratio'].dropna().mean() if len(df_universal_metrics['prompt_to_feature_ratio'].dropna()) > 0 else 0.0):.2f}",
+    )
+
+    col5, col6, col7, col8 = st.columns(4)
+    col5.metric(
+        "AI Lines Produced",
+        f"{df_universal_metrics['total_lines_written_by_selected_model_agent'].fillna(0).sum():.0f}",
+    )
+    col6.metric(
+        "AI Lines Needing Human Revision",
+        f"{df_universal_metrics['number_of_ai_lines_needing_human_revision'].fillna(0).sum():.0f}",
+    )
+    human_lines = df_universal_metrics["total_lines_written_by_humans"]
+    human_label = "N/A" if human_lines.dropna().empty else f"{human_lines.fillna(0).sum():.0f}"
+    col7.metric("Human Lines Produced", human_label)
+    col8.metric(
+        "Avg Prompt Success Rate",
+        f"{(df_universal_metrics['prompt_success_rate'].dropna().mean() * 100.0 if len(df_universal_metrics['prompt_success_rate'].dropna()) > 0 else 0.0):.1f}%",
+    )
+
+    st.divider()
+    st.write("### Per User/Phase Breakdown")
+    display_df = df_universal_metrics[
+        [
+            "user_id",
+            "phase",
+            "man_hours",
+            "man_days",
+            "prompt_success_ratio",
+            "prompt_success_rate",
+            "prompt_to_feature_ratio",
+            "total_lines_written_by_selected_model_agent",
+            "number_of_ai_lines_needing_human_revision",
+            "total_lines_written_by_humans",
+            "file_path",
+        ]
+    ].copy()
+
+    for pct_col in ["prompt_success_ratio", "prompt_success_rate"]:
+        display_df[pct_col] = display_df[pct_col].apply(
+            lambda v: f"{v * 100.0:.1f}%" if pd.notna(v) else "N/A"
+        )
+
+    st.dataframe(display_df, width="stretch", hide_index=True)

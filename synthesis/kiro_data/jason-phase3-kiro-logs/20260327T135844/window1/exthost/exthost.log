@@ -1,0 +1,17 @@
+2026-03-27 13:59:01.235 [info] Extension host with pid 2316 started
+2026-03-27 13:59:01.251 [info] ExtensionService#_doActivateExtension kiro.kiroAgent, startup: false, activationEvent: 'onCommand:kiroAgent.onboarding.checkSteps'
+2026-03-27 13:59:09.332 [info] ExtensionService#_doActivateExtension vscode.git-base, startup: false, activationEvent: '*', root cause: vscode.git
+2026-03-27 13:59:11.285 [error] MISSING_TOKEN: No valid token found
+	at AuthProvider.getTokenData (c:\Users\jason\AppData\Local\Programs\Kiro\resources\app\extensions\kiro.kiro-agent\dist\extension.js:504817:19)
+	at async AuthProvider.getProfileArn (c:\Users\jason\AppData\Local\Programs\Kiro\resources\app\extensions\kiro.kiro-agent\dist\extension.js:504800:23)
+	at async c:\Users\jason\AppData\Local\Programs\Kiro\resources\app\extensions\kiro.kiro-agent\dist\extension.js:932732:28 kiro.usageLimits.getUsageLimits {"value":"kiro.kiroAgent","_lower":"kiro.kiroagent"}
+2026-03-27 13:59:11.369 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-03-27 13:59:11.369 [warning] INVALID decoration from extension 'kiro.kiroAgent': Error: The decoration is empty
+2026-03-27 13:59:11.442 [info] ExtensionService#_doActivateExtension vscode.git, startup: false, activationEvent: '*'
+2026-03-27 13:59:11.560 [info] ExtensionService#_doActivateExtension vscode.github, startup: false, activationEvent: '*'
+2026-03-27 13:59:11.568 [info] ExtensionService#_doActivateExtension vscode.emmet, startup: false, activationEvent: 'onLanguage'
+2026-03-27 13:59:13.330 [info] Eager extensions activated
+2026-03-27 13:59:13.345 [info] ExtensionService#_doActivateExtension vscode.debug-auto-launch, startup: false, activationEvent: 'onStartupFinished'
+2026-03-27 13:59:13.397 [info] ExtensionService#_doActivateExtension vscode.merge-conflict, startup: false, activationEvent: 'onStartupFinished'
+2026-03-27 15:12:43.951 [info] Extension host terminating: renderer closed the MessagePort
+2026-03-27 15:12:44.087 [info] Extension host with pid 2316 exiting with code 0

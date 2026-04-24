@@ -1,0 +1,500 @@
+==========================================================================
+==========================================================================
+##### Completion options #####
+{
+  "contextLength": 40000,
+  "model": "agent",
+  "maxTokens": 4000,
+  "preserveContinuationId": false
+}
+
+##### Request options #####
+{}
+
+##### Prompt #####
+<user>
+Add all build artifacts, including pycache, hypothesis, and .db files to the gitignore
+
+==========================================================================
+==========================================================================
+Completion:
+
+
+
+==========================================================================
+==========================================================================
+##### Completion options #####
+{
+  "contextLength": 40000,
+  "model": "agent",
+  "maxTokens": 4000,
+  "preserveContinuationId": false
+}
+
+##### Request options #####
+{}
+
+##### Prompt #####
+<user>
+Add all build artifacts, including pycache, hypothesis, and .db files to the gitignore
+
+<assistant>
+
+
+<user>
+Change the db test path to test DB_PATH directly instead of testing the absolute path, as it currently will always return true
+
+==========================================================================
+==========================================================================
+Completion:
+
+
+
+==========================================================================
+==========================================================================
+##### Completion options #####
+{
+  "contextLength": 40000,
+  "model": "agent",
+  "maxTokens": 4000,
+  "preserveContinuationId": false
+}
+
+##### Request options #####
+{}
+
+##### Prompt #####
+<user>
+Add all build artifacts, including pycache, hypothesis, and .db files to the gitignore
+
+<assistant>
+
+
+<user>
+Change the db test path to test DB_PATH directly instead of testing the absolute path, as it currently will always return true
+
+<assistant>
+
+
+<user>
+Run this test to verify it works
+
+==========================================================================
+==========================================================================
+Completion:
+
+
+
+==========================================================================
+==========================================================================
+##### Completion options #####
+{
+  "contextLength": 40000,
+  "model": "agent",
+  "maxTokens": 4000,
+  "preserveContinuationId": false
+}
+
+##### Request options #####
+{}
+
+##### Prompt #####
+<user>
+Add all build artifacts, including pycache, hypothesis, and .db files to the gitignore
+
+<assistant>
+
+
+<user>
+Change the db test path to test DB_PATH directly instead of testing the absolute path, as it currently will always return true
+
+<assistant>
+
+
+<user>
+Run this test to verify it works
+
+<assistant>
+
+
+<user>
+Verify that delete behavior is possible for the audit_log and api_usage tables, accounting for the user_id foreign key if its on
+
+==========================================================================
+==========================================================================
+Completion:
+
+
+
+==========================================================================
+==========================================================================
+##### Completion options #####
+{
+  "contextLength": 40000,
+  "model": "agent",
+  "maxTokens": 4000,
+  "preserveContinuationId": false
+}
+
+##### Request options #####
+{}
+
+##### Prompt #####
+<user>
+Add all build artifacts, including pycache, hypothesis, and .db files to the gitignore
+
+<assistant>
+
+
+<user>
+Change the db test path to test DB_PATH directly instead of testing the absolute path, as it currently will always return true
+
+<assistant>
+
+
+<user>
+Run this test to verify it works
+
+<assistant>
+
+
+<user>
+Verify that delete behavior is possible for the audit_log and api_usage tables, accounting for the user_id foreign key if its on
+
+<assistant>
+
+
+<user>
+Verify that if a user entry is deleted, it will set these values to NULL on delete, preventing an error
+
+==========================================================================
+==========================================================================
+Completion:
+
+
+
+==========================================================================
+==========================================================================
+##### Completion options #####
+{
+  "contextLength": 40000,
+  "model": "agent",
+  "maxTokens": 4000,
+  "preserveContinuationId": false
+}
+
+##### Request options #####
+{}
+
+##### Prompt #####
+<user>
+Add all build artifacts, including pycache, hypothesis, and .db files to the gitignore
+
+<assistant>
+
+
+<user>
+Change the db test path to test DB_PATH directly instead of testing the absolute path, as it currently will always return true
+
+<assistant>
+
+
+<user>
+Run this test to verify it works
+
+<assistant>
+
+
+<user>
+Verify that delete behavior is possible for the audit_log and api_usage tables, accounting for the user_id foreign key if its on
+
+<assistant>
+
+
+<user>
+Verify that if a user entry is deleted, it will set these values to NULL on delete, preventing an error
+
+<assistant>
+
+
+<user>
+Add versions for the dependencies in the requirements.txt
+
+==========================================================================
+==========================================================================
+Completion:
+
+
+
+==========================================================================
+==========================================================================
+##### Completion options #####
+{
+  "contextLength": 40000,
+  "model": "agent",
+  "maxTokens": 4000,
+  "preserveContinuationId": false
+}
+
+##### Request options #####
+{}
+
+##### Prompt #####
+<user>
+Add all build artifacts, including pycache, hypothesis, and .db files to the gitignore
+
+<assistant>
+
+
+<user>
+Change the db test path to test DB_PATH directly instead of testing the absolute path, as it currently will always return true
+
+<assistant>
+
+
+<user>
+Run this test to verify it works
+
+<assistant>
+
+
+<user>
+Verify that delete behavior is possible for the audit_log and api_usage tables, accounting for the user_id foreign key if its on
+
+<assistant>
+
+
+<user>
+Verify that if a user entry is deleted, it will set these values to NULL on delete, preventing an error
+
+<assistant>
+
+
+<user>
+Add versions for the dependencies in the requirements.txt
+
+<assistant>
+
+
+<user>
+Verify that the users table stores hashed passwords
+
+==========================================================================
+==========================================================================
+Completion:
+
+
+
+==========================================================================
+==========================================================================
+##### Completion options #####
+{
+  "contextLength": 40000,
+  "model": "agent",
+  "maxTokens": 4000,
+  "preserveContinuationId": false
+}
+
+##### Request options #####
+{}
+
+##### Prompt #####
+<user>
+Add all build artifacts, including pycache, hypothesis, and .db files to the gitignore
+
+<assistant>
+
+
+<user>
+Change the db test path to test DB_PATH directly instead of testing the absolute path, as it currently will always return true
+
+<assistant>
+
+
+<user>
+Run this test to verify it works
+
+<assistant>
+
+
+<user>
+Verify that delete behavior is possible for the audit_log and api_usage tables, accounting for the user_id foreign key if its on
+
+<assistant>
+
+
+<user>
+Verify that if a user entry is deleted, it will set these values to NULL on delete, preventing an error
+
+<assistant>
+
+
+<user>
+Add versions for the dependencies in the requirements.txt
+
+<assistant>
+
+
+<user>
+Verify that the users table stores hashed passwords
+
+<assistant>
+
+
+<user>
+Verify that all pycache files and other build artifacts will not be tracked when staging files to commit
+
+==========================================================================
+==========================================================================
+Completion:
+
+
+
+==========================================================================
+==========================================================================
+##### Completion options #####
+{
+  "contextLength": 40000,
+  "model": "agent",
+  "maxTokens": 4000,
+  "preserveContinuationId": false
+}
+
+##### Request options #####
+{}
+
+##### Prompt #####
+<user>
+Add all build artifacts, including pycache, hypothesis, and .db files to the gitignore
+
+<assistant>
+
+
+<user>
+Change the db test path to test DB_PATH directly instead of testing the absolute path, as it currently will always return true
+
+<assistant>
+
+
+<user>
+Run this test to verify it works
+
+<assistant>
+
+
+<user>
+Verify that delete behavior is possible for the audit_log and api_usage tables, accounting for the user_id foreign key if its on
+
+<assistant>
+
+
+<user>
+Verify that if a user entry is deleted, it will set these values to NULL on delete, preventing an error
+
+<assistant>
+
+
+<user>
+Add versions for the dependencies in the requirements.txt
+
+<assistant>
+
+
+<user>
+Verify that the users table stores hashed passwords
+
+<assistant>
+
+
+<user>
+Verify that all pycache files and other build artifacts will not be tracked when staging files to commit
+
+<assistant>
+
+
+<user>
+The .hypothesis folder appears to still be tracked
+
+==========================================================================
+==========================================================================
+Completion:
+
+
+
+==========================================================================
+==========================================================================
+##### Completion options #####
+{
+  "contextLength": 40000,
+  "model": "agent",
+  "maxTokens": 4000,
+  "preserveContinuationId": false
+}
+
+##### Request options #####
+{}
+
+##### Prompt #####
+<user>
+Add all build artifacts, including pycache, hypothesis, and .db files to the gitignore
+
+<assistant>
+
+
+<user>
+Change the db test path to test DB_PATH directly instead of testing the absolute path, as it currently will always return true
+
+<assistant>
+
+
+<user>
+Run this test to verify it works
+
+<assistant>
+
+
+<user>
+Verify that delete behavior is possible for the audit_log and api_usage tables, accounting for the user_id foreign key if its on
+
+<assistant>
+
+
+<user>
+Verify that if a user entry is deleted, it will set these values to NULL on delete, preventing an error
+
+<assistant>
+
+
+<user>
+Add versions for the dependencies in the requirements.txt
+
+<assistant>
+
+
+<user>
+Verify that the users table stores hashed passwords
+
+<assistant>
+
+
+<user>
+Verify that all pycache files and other build artifacts will not be tracked when staging files to commit
+
+<assistant>
+
+
+<user>
+The .hypothesis folder appears to still be tracked
+
+<assistant>
+
+
+<user>
+Start the backend server
+
+==========================================================================
+==========================================================================
+Completion:
+
+
+
