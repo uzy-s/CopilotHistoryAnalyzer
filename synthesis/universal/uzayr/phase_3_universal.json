@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.1.0",
+  "format": "universal_chat_sync",
+  "user_id": "uzayr",
+  "phase": "Phase 3",
+  "generated_at": "2026-04-24T15:29:20.364292Z",
+  "source_preservation": {
+    "is_destructive": false,
+    "notes": "Original source files remain unchanged; this file is normalized and source-linked."
+  },
+  "chat_turns": [],
+  "metrics": {
+    "man_days": 0,
+    "man_hours": 0.0,
+    "prompt_success_ratio": null,
+    "prompt_success_rate": null,
+    "prompt_to_feature_ratio": null,
+    "total_prompts": 0,
+    "total_visible_prompts": 0,
+    "total_redacted_prompts": 0,
+    "total_tool_followup_turns": 0,
+    "retry_prompt_count": 0,
+    "prompt_visibility_rate": null,
+    "completed_features": 0,
+    "prompt_metric_method": "natural_user_prompts_excludes_tool_followups",
+    "feature_metric_method": "visible_prompt_segments_with_measured_activity",
+    "total_lines_written_by_selected_model_agent": 0,
+    "total_lines_written_by_humans": null,
+    "number_of_ai_lines_needing_human_revision": 0,
+    "total_copilot_applied_edit_lines": 0,
+    "total_copilot_applied_edit_calls": 0,
+    "total_copilot_text_edit_groups": 0,
+    "total_copilot_edited_file_events": 0,
+    "total_copilot_distinct_edited_files": 0,
+    "total_prompt_tokens": 0,
+    "total_completion_tokens": 0,
+    "total_actual_prompt_tokens": 0,
+    "total_actual_completion_tokens": 0,
+    "total_estimated_prompt_tokens": 0,
+    "total_estimated_completion_tokens": 0,
+    "total_assistant_code_lines": 0,
+    "total_assistant_fallback_code_lines": 0,
+    "total_tool_code_lines": 0,
+    "total_metering_usage": 0,
+    "metering_unit": null,
+    "average_context_usage_percentage": null,
+    "token_count_methods": {},
+    "tool_call_counts": {},
+    "copilot_edit_tool_counts": {},
+    "total_code_responses": 0,
+    "flagged_reverts": 0,
+    "measured_ai_output_definition": "Structured applied editor/tool edit lines when preserved by the source logs; otherwise fenced assistant code lines.",
+    "heuristic": {
+      "negative_keywords": [
+        "error",
+        "fix",
+        "no",
+        "wrong",
+        "fail",
+        "broken",
+        "bug",
+        "issue",
+        "doesn't work",
+        "didn't work",
+        "restore"
+      ],
+      "next_prompt_short_word_count_lt": 20
+    }
+  },
+  "nullability_contract": {
+    "rule": "Fields missing in a source are preserved as null in normalized turns.",
+    "common_null_fields_for_kiro": [
+      "actual_prompt_tokens",
+      "actual_completion_tokens",
+      "latency_ms",
+      "ttft_ms",
+      "edited_file_events",
+      "checkpoints_restored"
+    ]
+  }
+}
