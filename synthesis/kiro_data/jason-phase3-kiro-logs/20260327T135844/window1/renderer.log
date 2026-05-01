@@ -1,7 +1,0 @@
-2026-03-27 13:58:52.048 [info] Started local extension host with pid 2316.
-2026-03-27 13:58:52.048 [info] Started initializing default profile extensions in extensions installation folder. file:///c%3A/Users/jason/.kiro/extensions
-2026-03-27 13:58:52.360 [info] ChatSessionStore: Migrating 0 chat sessions from storage service to file system
-2026-03-27 13:58:53.056 [info] Completed initializing default profile extensions in extensions installation folder. file:///c%3A/Users/jason/.kiro/extensions
-2026-03-27 13:58:56.523 [info] [perf] Render performance baseline is 34ms
-2026-03-27 13:59:04.578 [info] Extension host (LocalProcess pid: 2316) is unresponsive.
-2026-03-27 13:59:11.368 [info] Extension host (LocalProcess pid: 2316) is responsive.

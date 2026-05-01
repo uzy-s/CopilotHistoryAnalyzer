@@ -1,7 +1,0 @@
-2026-04-08 13:21:41.079 [info] Started local extension host with pid 26292.
-2026-04-08 13:21:45.235 [info] [perf] Render performance baseline is 24ms
-2026-04-08 13:21:51.750 [info] Extension host (LocalProcess pid: 26292) is unresponsive.
-2026-04-08 13:21:59.011 [info] Extension host (LocalProcess pid: 26292) is responsive.
-2026-04-08 13:31:08.230 [info] Started local extension host with pid 25908.
-2026-04-08 13:31:08.339 [info] ChatSessionStore: Migrating 0 chat sessions from storage service to file system
-2026-04-08 13:31:11.249 [info] [perf] Render performance baseline is 27ms

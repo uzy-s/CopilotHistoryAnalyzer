@@ -1,8 +1,0 @@
-2026-04-13 22:54:51.594 [info] [WebviewProcessMonitor] Service starting
-2026-04-13 22:54:51.876 [info] update#setState idle
-2026-04-13 22:54:55.216 [info] [WebviewProcessMonitor] Tracking webview renderer: pid=20968, origin=vscode-webview://0fiqn00o8k91rgmdbrkqaelhl35qu7pk9mnjt4d67feujqgf5fi5, windowId=1 (total tracked processes: 1)
-2026-04-13 22:55:21.896 [info] update#setState checking for updates
-2026-04-13 22:55:22.161 [info] update#setState downloading
-2026-04-13 22:55:22.167 [info] update#setState downloaded
-2026-04-13 22:55:22.168 [info] update#setState ready
-2026-04-13 23:24:26.462 [info] Extension host with pid 24928 exited with code: 0, signal: unknown.

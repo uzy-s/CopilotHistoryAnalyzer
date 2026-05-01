@@ -1,3 +1,0 @@
-2026-04-15 16:54:32.227 [info] Log level: Info
-2026-04-15 16:54:34.801 [warning] [GitHubBranchProtectionProvider][updateRepositoryBranchProtection] Failed to update repository branch protection: No GitHub authentication session available.
-2026-04-15 16:54:35.535 [warning] [GitHubSourceControlHistoryItemDetailsProvider][_loadAssignableUsers] Failed to load assignable user(s) for Clemson-Capstone/s26-michelin: Error: No GitHub authentication session available.
