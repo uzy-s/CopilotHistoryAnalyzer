@@ -281,11 +281,38 @@ flowchart TD
           <h2>Developer Workflow</h2>
           <ol>
             <li>Keep parsing and business logic in <code>services/</code>.</li>
-            <li>Keep UI rendering in <code>views/tabs.py</code>.</li>
+            <li>Keep UI rendering in <code>views/</code> components.</li>
             <li>When adding analytics, build pure functions first, then render outputs.</li>
             <li>When adding tabs, create renderer + wire in <code>app.py</code>.</li>
             <li>Preserve backward compatibility for chat schema changes.</li>
           </ol>
+        </article>
+
+        <article class="card" id="deployment">
+          <h2>Updating and Deploying</h2>
+          <p>
+            The project operates as a standard Streamlit web application, meaning deployment consists of pushing the codebase to a host and running the execution command. 
+          </p>
+          <h3>Local Updates</h3>
+          <ol>
+            <li>Pull the latest code from the main repository.</li>
+            <li>Ensure dependencies are up-to-date: <code>pip install -r requirements.txt</code></li>
+            <li>Run the application locally: <code>streamlit run app.py</code></li>
+          </ol>
+          <h3>Production Deployment</h3>
+          <p>
+            When deploying to a production server (or Streamlit Community Cloud / Azure / AWS):
+          </p>
+          <ol>
+            <li>Provision a Python 3.9+ runtime environment.</li>
+            <li>Install system-level dependencies (if using external graphing libraries that require C-extensions, though strictly native python libraries are used currently).</li>
+            <li>Execute <code>pip install -r requirements.txt</code>.</li>
+            <li>Start the server using Streamlit's headless mode to ensure proper binding: <code>streamlit run app.py --server.headless true --server.port 8501</code></li>
+          </ol>
+          <h3>Documentation Site Updates</h3>
+          <p>
+            This Developer Guide is static site stored under <code>docs/developer-guide-site/</code>. If you introduce new tabs or graphs, update <code>graph-reference-data.js</code>. If you add new Python services, re-run whatever extraction script generates <code>api-reference.json</code> to keep these docs in sync.
+          </p>
         </article>
 
         <article class="card" id="api">
