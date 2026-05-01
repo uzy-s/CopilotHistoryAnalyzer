@@ -110,17 +110,52 @@
       })
       .join("");
 
-    bindApiSearch();
+    bindSearchLogic("api-search", ".api-group", ".api-item");
   };
 
-  const bindApiSearch = () => {
-    const searchInput = document.getElementById("api-search");
-    if (!searchInput) {
-      return;
-    }
+  const renderGraphs = (data) => {
+    const graphContent = document.getElementById("graph-content");
+    if (!graphContent || !Array.isArray(data)) return;
 
-    const groups = Array.from(document.querySelectorAll(".api-group"));
-    const allItems = Array.from(document.querySelectorAll(".api-item"));
+    graphContent.innerHTML = data
+      .map((tab) => {
+        const graphsHtml = (tab.graphs || []).map((graph) => `
+          <details class="api-item graph-item">
+            <summary>
+              <span class="api-signature">${graph.title}</span>
+              <span class="pill pill-soft">${graph.metric}</span>
+            </summary>
+            <p class="api-summary">${graph.description}</p>
+            <div class="api-grid" style="margin-top: 1rem;">
+              <div>
+                <strong style="font-size: 0.875rem; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.5rem">Primary Data Source</strong>
+                <p style="background: var(--surface-hover); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">${graph.source}</p>
+              </div>
+            </div>
+          </details>
+        `).join("");
+
+        return `
+          <section class="api-group graph-group">
+            <div class="api-module-head">
+              <h3>${tab.tab}</h3>
+              <p>${tab.description || ""}</p>
+            </div>
+            ${graphsHtml || '<p class="empty" style="margin-left: 1.5rem">No top-level graphs in this tab.</p>'}
+          </section>
+        `;
+      })
+      .join("");
+
+    bindSearchLogic("graph-search", ".graph-group", ".graph-item");
+  };
+
+  const bindSearchLogic = (inputId, groupSelector, itemSelector) => {
+    const searchInput = document.getElementById(inputId);
+    if (!searchInput) return;
+
+    const groups = Array.from(document.querySelectorAll(groupSelector));
+    const allItems = Array.from(document.querySelectorAll(itemSelector));
 
     searchInput.addEventListener("input", () => {
       const query = searchInput.value.trim().toLowerCase();
@@ -131,7 +166,7 @@
       });
 
       groups.forEach((group) => {
-        const hasVisibleItems = Array.from(group.querySelectorAll(".api-item")).some(
+        const hasVisibleItems = Array.from(group.querySelectorAll(itemSelector)).some(
           (item) => item.style.display !== "none"
         );
         group.style.display = hasVisibleItems ? "" : "none";
@@ -140,30 +175,31 @@
   };
 
   const loadApiReference = async () => {
-    if (!apiContent) {
-      return;
+    if (apiContent) {
+      const fallbackData = typeof window !== "undefined" && window.API_REFERENCE_DATA ? window.API_REFERENCE_DATA : null;
+
+      try {
+        const response = await fetch(API_JSON_PATH);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const data = await response.json();
+        renderApi(data);
+      } catch (error) {
+        if (fallbackData && Array.isArray(fallbackData.modules)) {
+          renderApi(fallbackData);
+        } else {
+          apiContent.innerHTML = `
+            <p class="empty">Could not load API JSON (${String(error)}).</p>
+            <p class="small-note">Run a local static server in this folder (for example: <code>python -m http.server 8080</code>) and open the site via http://localhost.</p>
+          `;
+        }
+      }
     }
 
-    const fallbackData =
-      typeof window !== "undefined" && window.API_REFERENCE_DATA ? window.API_REFERENCE_DATA : null;
-
-    try {
-      const response = await fetch(API_JSON_PATH);
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-      const data = await response.json();
-      renderApi(data);
-    } catch (error) {
-      if (fallbackData && Array.isArray(fallbackData.modules)) {
-        renderApi(fallbackData);
-        return;
-      }
-
-      apiContent.innerHTML = `
-        <p class="empty">Could not load API JSON (${String(error)}).</p>
-        <p class="small-note">Run a local static server in this folder (for example: <code>python -m http.server 8080</code>) and open the site via http://localhost.</p>
-      `;
+    const graphData = typeof window !== "undefined" && window.GRAPH_REFERENCE_DATA ? window.GRAPH_REFERENCE_DATA : [];
+    if (graphData.length > 0) {
+      renderGraphs(graphData);
     }
   };
 

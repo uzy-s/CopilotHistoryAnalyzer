@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="styles.css" />
     <script defer src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <script defer src="api-reference-data.js"></script>
+    <script defer src="graph-reference-data.js"></script>
     <script defer src="script.js"></script>
   </head>
   <body>
@@ -39,6 +40,8 @@
         <a href="#overview">Overview</a>
         <a href="#quickstart">Quick Start</a>
         <a href="#architecture">Architecture</a>
+        <a href="#universal-data">Universal Data Flow</a>
+        <a href="#graph-explainer">Graph Explainer</a>
         <a href="#data-contract">Data Contract</a>
         <a href="#dev-workflow">Dev Workflow</a>
         <a href="#api">API Reference</a>
@@ -130,7 +133,7 @@ flowchart TD
               <h4>Progressive Enhancement</h4>
               <p>
                 Optional git correlation augments metrics when available without blocking base
-                chat analysis workflows.
+                chat analysis workflows. If missing phases exist in the universal data but not the local Git data, the views gracefully fall back.
               </p>
             </div>
           </div>
@@ -138,16 +141,101 @@ flowchart TD
           <h3>Runtime Pipeline</h3>
           <ol>
             <li>Authenticate early with <code>require_password()</code> (fail-fast gate).</li>
-            <li>Collect sources from phase discovery + file upload controls.</li>
+            <li>Collect sources from phase discovery + universal files auto-discovery.</li>
+            <li>Instantly pre-process universal JSON items to discover "hidden" phases (e.g. Phase 3).</li>
             <li>Normalize chat exports into request-level rows.</li>
-            <li>Optionally parse git history for correlation overlays.</li>
-            <li>Apply session filters and render per-tab analysis surfaces.</li>
+            <li>Optionally parse git history (assigning it to user-selected "Phase" mapped dynamically).</li>
+            <li>Apply session filters and render via modularized tab components in <code>views/</code>.</li>
           </ol>
 
-          <div class="table-wrap">
+          <div class="table-wrap" style="margin-top: 1.5rem">
             <table>
               <thead>
                 <tr>
+                  <th>Streamlit Tab</th>
+                  <th>Module Location</th>
+                  <th>Primary Data Surface</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Chat Explorer (Legacy & Universal)</td>
+                  <td><code>views/chat_history_tab.py</code></td>
+                  <td>Filtered Chat Log Details</td>
+                </tr>
+                <tr>
+                  <td>Statistics</td>
+                  <td><code>views/statistics_tab.py</code></td>
+                  <td>AI/Human Volume Breakdown, Latency</td>
+                </tr>
+                <tr>
+                  <td>Executive Dashboard</td>
+                  <td><code>views/universal_dashboard_tab.py</code>, <code>views/universal_key_insights_tab.py</code>, <code>views/unified_overview_tab.py</code></td>
+                  <td>Key Insights, Capstone KPI Overviews</td>
+                </tr>
+                <tr>
+                  <td>Comparative Analysis & Timelines</td>
+                  <td><code>views/comparative_tab.py</code>, <code>views/timeline_tab.py</code>, <code>views/universal_required_stats_tab.py</code>, <code>views/flow_visualization_tab.py</code></td>
+                  <td>Time-series Velocity, Phase-over-Phase Comparisons, Funnel Diagnostics</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card" id="universal-data">
+          <h2>Universal Data Flow</h2>
+          <p>
+            The analyzer acts natively on a specialized data set known as "Universal Synthesis JSON." This data schema represents 
+            multi-modal, merged inputs spanning raw Copilot chat logs, manual tracking workbooks, Git repository timelines, and external 
+            grading metrics (like RITM files).
+          </p>
+
+          <div class="pattern-grid">
+            <div class="pattern-item">
+              <h4>Auto-Discovery Mechanism</h4>
+              <p>
+                Synthesized files located in <code>synthesis/universal/*/*_universal.json</code> are automatically detected 
+                by <code>discover_universal_files()</code>. The UI no longer requires developers to manually multiselect these files. 
+                They form the unified baseline right out of the box.
+              </p>
+            </div>
+            <div class="pattern-item">
+              <h4>Dynamic Phase Mapping</h4>
+              <p>
+                When a tracking workbook introduces a phase entirely missing from the raw <code>/data</code> directory (e.g., "Phase 3"), 
+                the universal phase collector automatically registers it. Any supplemental Git repositories attached via the sidebar 
+                can dynamically map to these "hidden" phases natively.
+              </p>
+            </div>
+            <div class="pattern-item">
+              <h4>Metrics Roll-up</h4>
+              <p>
+                To decouple heavy logic from UI redraws, all KPIs are aggregated by helper functions like 
+                <code>_aggregate_universal_phase_metrics</code> into a Phase-level dataframe before rendering, heavily utilizing pandas 
+                defensive NaN/empty handling to guarantee crash-free charting.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" id="graph-explainer">
+          <div class="api-header">
+            <h2>Graph Explainer & Visual Reference</h2>
+            <label for="graph-search">Search</label>
+            <input type="search" id="graph-search" placeholder="Search graphs by name, metric, or UI tab..." aria-label="Search defined graphs" />
+          </div>
+          <p style="margin-top: 1rem;">
+            The platform provides dense visualizations divided among five primary tabs. Search or browse the graphs below 
+            to understand exactly what metrics are being queried and what story the data is telling.
+          </p>
+          <div id="graph-content" class="api-container">
+            <!-- Dynamically populated by JS from graph-reference-data.js -->
+          </div>
+        </article>
+
+        <article class="card" id="data-contract">
+          <h2>Legacy Data Contract</h2>
                   <th>Module</th>
                   <th>Role</th>
                   <th>Pattern Focus</th>
