@@ -22,6 +22,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SYNTHESIS_DIR = REPO_ROOT / "synthesis"
 COPILOT_DIR = SYNTHESIS_DIR / "copilot_data"
 KIRO_DIR = SYNTHESIS_DIR / "kiro_data"
+CLAUDE_DIR = SYNTHESIS_DIR / "claude_data"
+CURSOR_DIR = SYNTHESIS_DIR / "cursor_data"
 UNIVERSAL_DIR = SYNTHESIS_DIR / "universal"
 
 PHASES = ["Phase 1", "Phase 2", "Phase 3"]
@@ -47,6 +49,7 @@ NEGATIVE_KEYWORDS = [
 TOOL_FOLLOWUP_PREFIX = "[Tool Result Follow-up]"
 REDACTED_SOURCE_PLACEHOLDER = "[Redacted by source log]"
 COPILOT_PATCH_LINE_PATTERN = re.compile(r"Generating patch \((\d+) lines?\)", re.IGNORECASE)
+CHAT_HISTORY_FILE_SUFFIXES = {".json", ".jsonl", ".log"}
 
 
 @dataclass
@@ -536,6 +539,445 @@ def _tool_code_metrics(tool_calls: list[dict[str, Any]]) -> tuple[int, dict[str,
     return total, breakdown, referenced_paths
 
 
+def _read_jsonish_payloads(path: Path) -> list[Any]:
+    suffix = path.suffix.lower()
+    if suffix == ".json":
+        try:
+            return [json.loads(path.read_text(encoding="utf-8", errors="ignore"))]
+        except Exception:
+            return []
+    if suffix in {".jsonl", ".log"}:
+        records = _extract_json_lines(path)
+        return [records] if records else []
+    return []
+
+
+def _source_file_ref(path: Path) -> str:
+    try:
+        return str(path.relative_to(REPO_ROOT))
+    except ValueError:
+        return str(path)
+
+
+def _iter_chat_history_files(root: Path) -> list[Path]:
+    if not root.exists():
+        return []
+    return sorted(
+        p
+        for p in root.rglob("*")
+        if p.is_file() and p.suffix.lower() in CHAT_HISTORY_FILE_SUFFIXES
+    )
+
+
+def _child_dir_case_insensitive(parent: Path, name: str) -> Path | None:
+    if not parent.exists():
+        return None
+    target = name.lower()
+    for child in parent.iterdir():
+        if child.is_dir() and child.name.lower() == target:
+            return child
+    return None
+
+
+def _discover_users_from_source_dir(source_dir: Path) -> set[str]:
+    users: set[str] = set()
+    if not source_dir.exists():
+        return users
+
+    for child in source_dir.iterdir():
+        if not child.is_dir():
+            continue
+
+        user_children = [grandchild for grandchild in child.iterdir() if grandchild.is_dir()]
+        if user_children and _looks_like_phase_name(child.name):
+            for user_dir in user_children:
+                users.add(user_dir.name.lower())
+        else:
+            users.add(child.name.lower())
+
+    return users
+
+
+def _looks_like_phase_name(name: str) -> bool:
+    lower = name.lower()
+    return any(marker in lower for marker in ("phase", "phase1", "phase2", "phase3", "p1", "p2", "p3"))
+
+
+def _source_user_candidate_dirs(source_dir: Path, user: str) -> list[tuple[str, Path]]:
+    candidate_dirs: list[tuple[str, Path]] = []
+    if not source_dir.exists():
+        return candidate_dirs
+
+    for child in sorted([p for p in source_dir.iterdir() if p.is_dir()]):
+        user_dir = _child_dir_case_insensitive(child, user)
+        if user_dir is not None:
+            candidate_dirs.append((_phase_from_name(child.name), user_dir))
+
+    direct_user_dir = _child_dir_case_insensitive(source_dir, user)
+    if direct_user_dir is not None:
+        candidate_dirs.append(("", direct_user_dir))
+
+    deduped: list[tuple[str, Path]] = []
+    seen: set[Path] = set()
+    for phase_hint, path in candidate_dirs:
+        resolved = path.resolve()
+        if resolved in seen:
+            continue
+        seen.add(resolved)
+        deduped.append((phase_hint, path))
+    return deduped
+
+
+def _coerce_timestamp(value: Any) -> str | None:
+    if value is None:
+        return None
+
+    if isinstance(value, (int, float)):
+        try:
+            seconds = float(value)
+            if seconds > 10_000_000_000:
+                seconds = seconds / 1000.0
+            return datetime.fromtimestamp(seconds).isoformat()
+        except Exception:
+            return None
+
+    if isinstance(value, str):
+        text = value.strip()
+        if not text:
+            return None
+        if re.fullmatch(r"\d+(\.\d+)?", text):
+            return _coerce_timestamp(float(text))
+        try:
+            return datetime.fromisoformat(text.replace("Z", "+00:00")).isoformat()
+        except Exception:
+            return text
+
+    return None
+
+
+def _message_timestamp(message: dict[str, Any]) -> str | None:
+    nested = message.get("message")
+    if isinstance(nested, dict):
+        ts = _message_timestamp(nested)
+        if ts:
+            return ts
+
+    for key in (
+        "timestamp",
+        "created_at",
+        "createdAt",
+        "updated_at",
+        "updatedAt",
+        "time",
+        "date",
+    ):
+        ts = _coerce_timestamp(message.get(key))
+        if ts:
+            return ts
+    return None
+
+
+def _message_model(message: dict[str, Any]) -> Any:
+    nested = message.get("message")
+    if isinstance(nested, dict):
+        model = _message_model(nested)
+        if model:
+            return model
+
+    return message.get("model") or message.get("modelId") or message.get("model_id")
+
+
+def _extract_chat_text(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, (int, float, bool)):
+        return str(value)
+    if isinstance(value, list):
+        parts = [_extract_chat_text(item) for item in value]
+        return "\n".join(part for part in parts if part)
+    if not isinstance(value, dict):
+        return ""
+
+    value_type = str(value.get("type") or "").lower()
+    if value_type in {"tool_use", "function_call", "tool_call"}:
+        return ""
+
+    for key in ("text", "content", "value", "message", "markdown", "body"):
+        if key in value:
+            text = _extract_chat_text(value.get(key))
+            if text:
+                return text
+
+    parts = value.get("parts")
+    if isinstance(parts, list):
+        text = _extract_chat_text(parts)
+        if text:
+            return text
+
+    return ""
+
+
+def _message_text(message: dict[str, Any]) -> str:
+    nested = message.get("message")
+    if isinstance(nested, dict):
+        text = _message_text(nested)
+        if text:
+            return text
+
+    for key in ("text", "content", "message", "markdown", "body"):
+        if key in message:
+            text = _extract_chat_text(message.get(key))
+            if text:
+                return text
+    return ""
+
+
+def _message_role(message: dict[str, Any]) -> str | None:
+    nested = message.get("message")
+    if isinstance(nested, dict):
+        role = _message_role(nested)
+        if role:
+            return role
+
+    for key in ("role", "sender", "author", "type"):
+        raw = message.get(key)
+        if isinstance(raw, dict):
+            raw = raw.get("role") or raw.get("name")
+        if not isinstance(raw, str):
+            continue
+        role = raw.lower()
+        if role in {"human", "user", "request"}:
+            return "user"
+        if role in {"assistant", "ai", "bot", "response"}:
+            return "assistant"
+    return None
+
+
+def _extract_generic_tool_calls(message: dict[str, Any]) -> list[dict[str, Any]]:
+    tool_calls: list[dict[str, Any]] = []
+    nested = message.get("message")
+    if isinstance(nested, dict):
+        tool_calls.extend(_extract_generic_tool_calls(nested))
+
+    raw_calls = message.get("tool_calls") or message.get("toolCalls") or message.get("toolUses")
+    if isinstance(raw_calls, list):
+        for idx, raw_call in enumerate(raw_calls):
+            if not isinstance(raw_call, dict):
+                continue
+            name = raw_call.get("name")
+            function_obj = raw_call.get("function")
+            if not name and isinstance(function_obj, dict):
+                name = function_obj.get("name")
+            args = raw_call.get("args") or raw_call.get("arguments") or raw_call.get("input")
+            if args is None and isinstance(function_obj, dict):
+                args = function_obj.get("arguments")
+            tool_calls.append(
+                {
+                    "id": raw_call.get("id") or raw_call.get("toolUseId"),
+                    "name": str(name or "unknown"),
+                    "args": _coerce_tool_args(args),
+                    "index": len(tool_calls),
+                }
+            )
+
+    content = message.get("content")
+    if isinstance(content, list):
+        for block in content:
+            if not isinstance(block, dict):
+                continue
+            if str(block.get("type") or "").lower() not in {"tool_use", "function_call", "tool_call"}:
+                continue
+            tool_calls.append(
+                {
+                    "id": block.get("id") or block.get("toolUseId"),
+                    "name": str(block.get("name") or "unknown"),
+                    "args": _coerce_tool_args(block.get("input") or block.get("arguments")),
+                    "index": len(tool_calls),
+                }
+            )
+
+    return tool_calls
+
+
+def _conversation_messages(payload: Any) -> list[dict[str, Any]]:
+    if isinstance(payload, list):
+        return [item for item in payload if isinstance(item, dict)]
+    if not isinstance(payload, dict):
+        return []
+
+    for key in (
+        "messages",
+        "chat_messages",
+        "conversation",
+        "conversationHistory",
+        "history",
+        "transcript",
+    ):
+        value = payload.get(key)
+        if isinstance(value, list):
+            return [item for item in value if isinstance(item, dict)]
+
+    return []
+
+
+def _iter_conversation_payloads(payload: Any) -> list[Any]:
+    if isinstance(payload, list):
+        if any(isinstance(item, dict) and _message_role(item) for item in payload):
+            return [payload]
+        return payload
+
+    if not isinstance(payload, dict):
+        return []
+
+    for key in ("conversations", "chats", "sessions", "items", "data"):
+        value = payload.get(key)
+        if isinstance(value, list):
+            return value
+
+    return [payload]
+
+
+def _conversation_id(payload: Any, path: Path) -> str:
+    if isinstance(payload, dict):
+        for key in ("id", "uuid", "conversation_id", "conversationId", "session_id", "sessionId", "name", "title"):
+            value = payload.get(key)
+            if value:
+                return str(value)
+    return path.stem
+
+
+def _normalize_generic_messages(payload: Any, path: Path) -> list[dict[str, Any]]:
+    normalized: list[dict[str, Any]] = []
+    session_id = _conversation_id(payload, path)
+    messages = _conversation_messages(payload)
+
+    for idx, message in enumerate(messages):
+        role = _message_role(message)
+        text = _message_text(message)
+        tool_calls = _extract_generic_tool_calls(message)
+        if not role or (not text and not tool_calls):
+            continue
+        normalized.append(
+            {
+                "role": role,
+                "text": text,
+                "timestamp": _message_timestamp(message),
+                "model": _message_model(message),
+                "tool_calls": tool_calls,
+                "session_id": session_id,
+                "message_index": idx,
+            }
+        )
+
+    return normalized
+
+
+def _generic_history_turns_from_payload(payload: Any, path: Path) -> list[dict[str, Any]]:
+    turns: list[dict[str, Any]] = []
+    for conversation in _iter_conversation_payloads(payload):
+        messages = _normalize_generic_messages(conversation, path)
+        pending_user: dict[str, Any] | None = None
+
+        for message in messages:
+            if message["role"] == "user":
+                pending_user = message
+                continue
+            if message["role"] != "assistant" or pending_user is None:
+                continue
+
+            turns.append(
+                {
+                    "timestamp": message.get("timestamp") or pending_user.get("timestamp"),
+                    "session_id": message.get("session_id") or pending_user.get("session_id") or path.stem,
+                    "user_text": pending_user.get("text") or "",
+                    "assistant_text": message.get("text") or "",
+                    "model": message.get("model") or pending_user.get("model"),
+                    "tool_calls": message.get("tool_calls") or [],
+                    "message_index": message.get("message_index"),
+                }
+            )
+            pending_user = None
+
+    return turns
+
+
+def _parse_generic_chat_history_user(
+    user: str,
+    source_dir: Path,
+    source_platform: str,
+) -> dict[str, list[ChatTurn]]:
+    by_phase: dict[str, list[ChatTurn]] = {phase: [] for phase in PHASES}
+
+    for phase_hint, user_dir in _source_user_candidate_dirs(source_dir, user):
+        for file_path in _iter_chat_history_files(user_dir):
+            phase = phase_hint or _phase_from_name(str(file_path.relative_to(user_dir)))
+            payloads = _read_jsonish_payloads(file_path)
+            for payload_index, payload in enumerate(payloads):
+                for turn_index, parsed_turn in enumerate(_generic_history_turns_from_payload(payload, file_path)):
+                    user_text = str(parsed_turn.get("user_text") or "")
+                    assistant_text = str(parsed_turn.get("assistant_text") or "")
+                    tool_calls = parsed_turn.get("tool_calls") if isinstance(parsed_turn.get("tool_calls"), list) else []
+                    assistant_code_lines, languages = _extract_code_metadata(assistant_text)
+                    tool_code_lines, tool_breakdown, tool_paths = _tool_code_metrics(tool_calls)
+                    total_ai_lines = tool_code_lines if tool_code_lines > 0 else assistant_code_lines
+                    estimated_prompt_tokens = _estimate_tokens(user_text)
+                    tool_payload_text = "\n".join(
+                        json.dumps(tc.get("args") or {}, ensure_ascii=False)
+                        for tc in tool_calls
+                        if isinstance(tc, dict)
+                    )
+                    estimated_completion_tokens = _estimate_tokens(
+                        "\n".join(part for part in [assistant_text, tool_payload_text] if part)
+                    )
+
+                    by_phase[phase].append(
+                        ChatTurn(
+                            timestamp=parsed_turn.get("timestamp"),
+                            session_id=str(parsed_turn.get("session_id") or file_path.stem),
+                            phase=phase,
+                            user_text=user_text,
+                            assistant_text=assistant_text,
+                            model=str(parsed_turn.get("model")) if parsed_turn.get("model") is not None else None,
+                            prompt_tokens=estimated_prompt_tokens,
+                            completion_tokens=estimated_completion_tokens,
+                            actual_prompt_tokens=None,
+                            actual_completion_tokens=None,
+                            estimated_prompt_tokens=estimated_prompt_tokens,
+                            estimated_completion_tokens=estimated_completion_tokens,
+                            token_count_method="estimated_char_ratio_4",
+                            code_lines_suggested=total_ai_lines,
+                            assistant_code_lines=assistant_code_lines,
+                            tool_code_lines=tool_code_lines,
+                            code_line_breakdown={
+                                "assistant_code_lines": assistant_code_lines,
+                                "tool_code_lines": tool_code_lines,
+                                **tool_breakdown,
+                            },
+                            latency_ms=None,
+                            ttft_ms=None,
+                            referenced_files=_basename_refs(tool_paths),
+                            languages=_dedupe_preserve_order(languages),
+                            edited_file_events=None,
+                            checkpoints_restored=None,
+                            tool_calls=tool_calls,
+                            metering_usage=None,
+                            metering_unit=None,
+                            context_usage_pct=None,
+                            source_platform=source_platform,
+                            source_file=_source_file_ref(file_path),
+                            source_ref={
+                                "payload_index": payload_index,
+                                "turn_index": turn_index,
+                                "message_index": parsed_turn.get("message_index"),
+                            },
+                        )
+                    )
+
+    return by_phase
+
+
 def _phase_from_name(name: str) -> str:
     lower = name.lower()
     if "phase 3" in lower or "phase3" in lower or "p3" in lower:
@@ -565,6 +1007,9 @@ def _discover_users() -> set[str]:
             if child.is_dir():
                 # New layout: kiro_data/<user>/<run>/...
                 users.add(child.name.lower())
+
+    users.update(_discover_users_from_source_dir(CLAUDE_DIR))
+    users.update(_discover_users_from_source_dir(CURSOR_DIR))
 
     return users
 
@@ -1199,6 +1644,22 @@ def _parse_kiro_user(user: str) -> dict[str, list[ChatTurn]]:
     return by_phase
 
 
+def _parse_claude_user(user: str) -> dict[str, list[ChatTurn]]:
+    return _parse_generic_chat_history_user(user, CLAUDE_DIR, "claude")
+
+
+def _parse_cursor_user(user: str) -> dict[str, list[ChatTurn]]:
+    return _parse_generic_chat_history_user(user, CURSOR_DIR, "cursor")
+
+
+SOURCE_ADAPTERS = (
+    _parse_copilot_user,
+    _parse_kiro_user,
+    _parse_claude_user,
+    _parse_cursor_user,
+)
+
+
 def _parse_ts(ts: str | None) -> datetime | None:
     if not ts:
         return None
@@ -1577,13 +2038,10 @@ def build_universal_files() -> list[Path]:
     for user in sorted(users):
         combined: dict[str, list[ChatTurn]] = {phase: [] for phase in PHASES}
 
-        copilot_phase_turns = _parse_copilot_user(user)
-        for phase in PHASES:
-            combined[phase].extend(copilot_phase_turns.get(phase, []))
-
-        kiro_phase_turns = _parse_kiro_user(user)
-        for phase in PHASES:
-            combined[phase].extend(kiro_phase_turns.get(phase, []))
+        for adapter in SOURCE_ADAPTERS:
+            adapter_phase_turns = adapter(user)
+            for phase in PHASES:
+                combined[phase].extend(adapter_phase_turns.get(phase, []))
 
         user_dir = UNIVERSAL_DIR / user
         user_dir.mkdir(parents=True, exist_ok=True)

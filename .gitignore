@@ -1,5 +1,33 @@
-./chatHistory.json
-./chatTemlate.json
-./synthesis/copilot_data
-./synthesis/kiro_data
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.egg-info/
+build/
+dist/
+pip-wheel-metadata/
 
+# Virtual environments and tool caches
+.venv/
+venv/
+env/
+ENV/
+.uv-cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# Local Copilot history artifacts
+chatHistory.json
+chatTemplate.json
+checkpointTest.json
+code_analysis_report_CopilotHistoryAnalyzer.csv
+graph_csv_exports/
+synthesis/copilot_data/
+synthesis/kiro_data/
+docs/developer-guide-site/

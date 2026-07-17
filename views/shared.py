@@ -6,6 +6,9 @@ to maintain and test.
 """
 
 import json
+import re
+from pathlib import Path
+from typing import Any
 
 import pandas as pd
 import plotly.express as px
@@ -60,6 +63,157 @@ SIGNAL_COLORS = {
     "Copilot Edited File Events": "#06B6D4",
     "Tool-Written Code Lines": "#8B5CF6",
 }
+GRAPH_CSV_EXPORT_DIR = Path("graph_csv_exports")
+
+
+def _graph_csv_filename(title: str) -> str:
+    """Return a filesystem-safe CSV filename that stays close to the graph title."""
+    cleaned = re.sub(r"<[^>]*>", "", str(title or "Untitled Graph"))
+    cleaned = re.sub(r'[<>:"/\\|?*]', "-", cleaned)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip().strip(".")
+    return f"{cleaned or 'Untitled Graph'}.csv"
+
+
+def _as_list(value: Any) -> list[Any]:
+    """Convert Plotly array-like values into a plain list."""
+    if value is None:
+        return []
+    if isinstance(value, (str, bytes)):
+        return [value]
+    try:
+        return list(value)
+    except TypeError:
+        return [value]
+
+
+def _csv_cell(value: Any) -> Any:
+    """Keep scalar CSV cells simple and JSON-encode nested values."""
+    if isinstance(value, (list, tuple, dict)):
+        return json.dumps(value, default=str)
+    return value
+
+
+def _extract_heatmap_rows(trace: Any, trace_index: int) -> list[dict[str, Any]]:
+    """Flatten heatmap z-values into one row per x/y cell."""
+    z_rows = _as_list(getattr(trace, "z", None))
+    x_values = _as_list(getattr(trace, "x", None))
+    y_values = _as_list(getattr(trace, "y", None))
+    rows: list[dict[str, Any]] = []
+
+    for y_idx, z_row in enumerate(z_rows):
+        z_values = _as_list(z_row)
+        for x_idx, z_value in enumerate(z_values):
+            rows.append(
+                {
+                    "trace_index": trace_index,
+                    "trace_name": getattr(trace, "name", "") or f"Trace {trace_index + 1}",
+                    "trace_type": getattr(trace, "type", ""),
+                    "point_index": x_idx,
+                    "x": x_values[x_idx] if x_idx < len(x_values) else x_idx,
+                    "y": y_values[y_idx] if y_idx < len(y_values) else y_idx,
+                    "value": z_value,
+                }
+            )
+    return rows
+
+
+def _extract_sankey_rows(trace: Any, trace_index: int) -> list[dict[str, Any]]:
+    """Flatten Sankey links into one row per source/target/value edge."""
+    node_labels = _as_list(getattr(getattr(trace, "node", None), "label", None))
+    link = getattr(trace, "link", None)
+    sources = _as_list(getattr(link, "source", None))
+    targets = _as_list(getattr(link, "target", None))
+    values = _as_list(getattr(link, "value", None))
+    rows: list[dict[str, Any]] = []
+
+    for idx in range(max(len(sources), len(targets), len(values))):
+        source_idx = sources[idx] if idx < len(sources) else None
+        target_idx = targets[idx] if idx < len(targets) else None
+        rows.append(
+            {
+                "trace_index": trace_index,
+                "trace_name": getattr(trace, "name", "") or f"Trace {trace_index + 1}",
+                "trace_type": "sankey",
+                "point_index": idx,
+                "source": source_idx,
+                "source_label": node_labels[source_idx] if isinstance(source_idx, int) and source_idx < len(node_labels) else source_idx,
+                "target": target_idx,
+                "target_label": node_labels[target_idx] if isinstance(target_idx, int) and target_idx < len(node_labels) else target_idx,
+                "value": values[idx] if idx < len(values) else None,
+            }
+        )
+    return rows
+
+
+def _extract_trace_rows(trace: Any, trace_index: int) -> list[dict[str, Any]]:
+    """Flatten a Plotly trace into external-tool-friendly CSV rows."""
+    trace_type = getattr(trace, "type", "")
+    if trace_type == "heatmap":
+        return _extract_heatmap_rows(trace, trace_index)
+    if trace_type == "sankey":
+        return _extract_sankey_rows(trace, trace_index)
+
+    x_values = _as_list(getattr(trace, "x", None))
+    y_values = _as_list(getattr(trace, "y", None))
+    labels = _as_list(getattr(trace, "labels", None))
+    values = _as_list(getattr(trace, "values", None))
+    text = _as_list(getattr(trace, "text", None))
+    customdata = _as_list(getattr(trace, "customdata", None))
+    point_count = max(len(x_values), len(y_values), len(labels), len(values), len(text), len(customdata), 1)
+
+    rows: list[dict[str, Any]] = []
+    for idx in range(point_count):
+        rows.append(
+            {
+                "trace_index": trace_index,
+                "trace_name": getattr(trace, "name", "") or f"Trace {trace_index + 1}",
+                "trace_type": trace_type,
+                "point_index": idx,
+                "x": x_values[idx] if idx < len(x_values) else None,
+                "y": y_values[idx] if idx < len(y_values) else None,
+                "label": labels[idx] if idx < len(labels) else None,
+                "value": values[idx] if idx < len(values) else None,
+                "text": text[idx] if idx < len(text) else None,
+                "customdata": _csv_cell(customdata[idx]) if idx < len(customdata) else None,
+            }
+        )
+    return rows
+
+
+def export_plotly_graph_csv(fig: go.Figure) -> Path | None:
+    """Store a CSV of plotted data points for a Plotly graph, without overwriting."""
+    title = getattr(getattr(fig, "layout", None), "title", None)
+    title_text = getattr(title, "text", None) or "Untitled Graph"
+    output_path = GRAPH_CSV_EXPORT_DIR / _graph_csv_filename(title_text)
+    if output_path.exists():
+        return output_path
+
+    rows: list[dict[str, Any]] = []
+    for trace_index, trace in enumerate(getattr(fig, "data", [])):
+        rows.extend(_extract_trace_rows(trace, trace_index))
+
+    if not rows:
+        return None
+
+    GRAPH_CSV_EXPORT_DIR.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(rows).to_csv(output_path, index=False)
+    return output_path
+
+
+_ORIGINAL_PLOTLY_CHART = st.plotly_chart
+
+
+def _plotly_chart_with_csv_export(fig: go.Figure, *args: Any, **kwargs: Any) -> Any:
+    """Render a Plotly chart and opportunistically export its data points."""
+    try:
+        export_plotly_graph_csv(fig)
+    except Exception:
+        pass
+    return _ORIGINAL_PLOTLY_CHART(fig, *args, **kwargs)
+
+
+if getattr(st.plotly_chart, "__name__", "") != "_plotly_chart_with_csv_export":
+    st.plotly_chart = _plotly_chart_with_csv_export
 
 
 def _safe_divide(numerator: float | int | None, denominator: float | int | None) -> float | None:
